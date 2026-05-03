@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Comprehension: Ahead of its time</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-style: italic;
+        }
+
+        .section {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Vocabulary Section */
+        .vocabulary-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .vocab-instruction {
+            background: #f9f7f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2c3e50;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+
+        .word-box {
+            background: #f5f1e8;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 35px;
+            border: 2px solid #d0c5b8;
+            line-height: 1.8;
+            font-size: 1em;
+            color: #2c3e50;
+            font-weight: 500;
+            font-family: 'Noto Sans', sans-serif;
+            word-wrap: break-word;
+        }
+
+        .vocab-question-box {
+            background: #f9f7f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2c3e50;
+        }
+
+        .vocab-question-box.answered {
+            border-left-color: #4caf50;
+            background: #f1f8f5;
+        }
+
+        .vocab-question-box.answered.incorrect {
+            border-left-color: #f44336;
+            background: #fef5f5;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .question-meaning {
+            color: #34495e;
+            font-size: 1em;
+            margin-bottom: 12px;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d0c5b8;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: 'Georgia', serif;
+            margin-bottom: 12px;
+        }
+
+        .answer-input.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .answer-input.incorrect {
+            border-color: #f44336;
+            background: #fff3cd;
+        }
+
+        .feedback-text {
+            font-size: 0.95em;
+            padding: 8px 0;
+            display: none;
+        }
+
+        .feedback-text.show {
+            display: block;
+        }
+
+        .feedback-text.correct {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .feedback-text.incorrect {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a252f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        /* Reading Section */
+        .reading-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            height: calc(100vh - 200px);
+            margin: -40px;
+            padding: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .reading-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 30px;
+            }
+        }
+
+        .reading-panel, .questions-panel {
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .reading-panel::-webkit-scrollbar, .questions-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reading-panel::-webkit-scrollbar-track, .questions-panel::-webkit-scrollbar-track {
+            background: #f0ebe3;
+        }
+
+        .reading-panel::-webkit-scrollbar-thumb, .questions-panel::-webkit-scrollbar-thumb {
+            background: #bdc3c7;
+            border-radius: 4px;
+        }
+
+        .passage-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .passage-subtitle {
+            font-size: 0.95em;
+            color: #7f8c8d;
+            font-style: italic;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0d5c8;
+        }
+
+        .passage-text {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #2c3e50;
+            text-align: justify;
+        }
+
+        .passage-text p {
+            margin-bottom: 18px;
+        }
+
+        .passage-text em {
+            font-style: italic;
+            color: #34495e;
+        }
+
+        .highlight-tool {
+            background: #fff3cd;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95em;
+            color: #856404;
+            flex-wrap: wrap;
+        }
+
+        .highlight-tool input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .highlight-tool button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .text-highlighted {
+            background-color: #ffeb3b;
+            cursor: pointer;
+        }
+
+        /* Questions Section */
+        .questions-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0d5c8;
+        }
+
+        .question-group {
+            margin-bottom: 28px;
+            padding: 18px;
+            background: #f9f7f4;
+            border-radius: 8px;
+            border-left: 4px solid #2c3e50;
+        }
+
+        .question-group.answered {
+            border-left-color: #4caf50;
+            background: #f1f8f5;
+        }
+
+        .question-group.answered.incorrect {
+            border-left-color: #f44336;
+            background: #fef5f5;
+        }
+
+        .question-label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #34495e;
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-button {
+            background: white;
+            border: 2px solid #d0c5b8;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            color: #2c3e50;
+        }
+
+        .option-button:hover {
+            background: #f0ebe3;
+            border-color: #2c3e50;
+        }
+
+        .option-button.selected {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .option-button.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            pointer-events: none;
+        }
+
+        .option-button.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            pointer-events: none;
+        }
+
+        .question-feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .question-feedback.show {
+            display: block;
+        }
+
+        .question-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 3px solid #4caf50;
+        }
+
+        .question-feedback.incorrect {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 3px solid #ffc107;
+        }
+
+        .hint-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hint-text {
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .evidence {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        /* Answer Feedback for Flowchart/Notes */
+        .answer-feedback {
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .answer-feedback.show {
+            display: block;
+        }
+
+        .answer-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 3px solid #4caf50;
+        }
+
+        .answer-feedback.incorrect {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 3px solid #ffc107;
+        }
+
+        .answer-feedback .hint-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .answer-feedback .hint-text {
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .answer-feedback .evidence {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px;
+            border-radius: 4px;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        /* Flowchart and Notes */
+        .flowchart-section {
+            background: #f9f7f4;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 2px solid #d0c5b8;
+        }
+
+        .flowchart-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .flowchart-item {
+            margin-bottom: 15px;
+            font-size: 1em;
+            color: #34495e;
+        }
+
+        .flowchart-arrow {
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 700;
+            margin: 8px 0;
+            font-size: 1.2em;
+        }
+
+        .notes-section {
+            background: #f9f7f4;
+            padding: 25px;
+            border-radius: 8px;
+            border: 2px solid #d0c5b8;
+        }
+
+        .notes-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .notes-group {
+            margin-bottom: 20px;
+        }
+
+        .notes-heading {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .notes-item {
+            margin-left: 20px;
+            margin-bottom: 10px;
+            font-size: 1em;
+            color: #34495e;
+            line-height: 1.6;
+        }
+
+        /* Progress Section */
+        .progress-info {
+            background: #f9f7f4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            color: #2c3e50;
+        }
+
+        .progress-bar {
+            background: #e0d5c8;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            background: #2c3e50;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Results Section */
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .results-score {
+            font-size: 3em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #34495e;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .results-details {
+            background: #f9f7f4;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .results-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0d5c8;
+            font-size: 1.05em;
+        }
+
+        .results-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .results-detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .results-detail-value {
+            color: #34495e;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .section-nav {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .section-nav button {
+            padding: 10px 20px;
+            font-size: 0.95em;
+        }
+
+        .section-nav button.active {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .section-nav button:not(.active) {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .check-all-btn {
+            background: #27ae60;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .check-all-btn:hover {
+            background: #229954;
+        }
+
+        .all-answered {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reading Comprehension Exercise</h1>
+            <p>Ahead of its time: A chance discovery in New Zealand</p>
+        </div>
+
+        <!-- Vocabulary Section -->
+        <div class="section active" id="vocab-section">
+            <div class="section-nav">
+                <button class="nav-btn active" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn" data-section="reading">Reading</button>
+                <button class="nav-btn" data-section="results">Results</button>
+            </div>
+
+            <div class="vocabulary-container">
+                <div class="vocab-instruction">
+                    <strong>Instructions:</strong> Choose the word from the word box that matches each Vietnamese meaning below. Type your answer in the text field.
+                </div>
+
+                <div class="word-box" id="word-box"></div>
+
+                <div id="vocab-questions"></div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="checkVocabularyAnswers()">Check Vocabulary Answers</button>
+                    <button class="btn-secondary" onclick="proceedToReading()">Proceed to Reading</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Section -->
+        <div class="section" id="reading-section">
+            <div class="section-nav">
+                <button class="nav-btn" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn active" data-section="reading">Reading</button>
+                <button class="nav-btn" data-section="results">Results</button>
+            </div>
+
+            <div class="reading-container">
+                <!-- Left Panel: Reading Passage -->
+                <div class="reading-panel">
+                    <div class="passage-title">Ahead of its time</div>
+                    <div class="passage-subtitle"><em>A chance discovery in New Zealand has challenged the country's recorded history</em></div>
+
+                    <div class="highlight-tool">
+                        <label for="highlight-color">Highlight color:</label>
+                        <input type="color" id="highlight-color" value="#ffeb3b">
+                        <button class="btn-primary" onclick="clearHighlights()" style="padding: 8px 16px; font-size: 0.9em;">Clear Highlights</button>
+                    </div>
+
+                    <div class="passage-text" id="passage-content"></div>
+                </div>
+
+                <!-- Right Panel: Questions -->
+                <div class="questions-panel">
+                    <div class="questions-title">Questions 1-13</div>
+                    <div class="progress-info">
+                        <span id="progress-text">Answered: 0/13</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary check-all-btn" onclick="checkAllReadingAnswers()">Check All Answers</button>
+                    <div class="all-answered hidden" id="all-answered-msg">✓ All questions answered! Check your answers above.</div>
+
+                    <div id="questions-list"></div>
+
+                    <div class="button-group" style="margin-top: 50px;">
+                        <button class="btn-primary" onclick="proceedToResults()">View Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section" id="results-section">
+            <div class="section-nav">
+                <button class="nav-btn" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn" data-section="reading">Reading</button>
+                <button class="nav-btn active" data-section="results">Results</button>
+            </div>
+
+            <div class="results-container">
+                <div class="results-score" id="final-score">0/74</div>
+                <div class="results-message" id="results-message"></div>
+
+                <div class="results-details">
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Vocabulary Score:</span>
+                        <span class="results-detail-value" id="vocab-score">0/61</span>
+                    </div>
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Reading Comprehension Score:</span>
+                        <span class="results-detail-value" id="reading-score">0/13</span>
+                    </div>
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Overall Percentage:</span>
+                        <span class="results-detail-value" id="percentage">0%</span>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn-secondary" onclick="restartExercise()">Start Over</button>
+                    <button class="btn-primary" onclick="goToSection('reading')">Review Reading</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // All 61 vocabulary words with meanings
+        const vocabularyData = [
+            { word: "eager", meaning: "háo hức, mong muốn" },
+            { word: "borders", meaning: "giáp với, tiếp giáp" },
+            { word: "testifies", meaning: "chứng tỏ, làm bằng chứng" },
+            { word: "natural tendency", meaning: "xu hướng tự nhiên" },
+            { word: "initially", meaning: "ban đầu" },
+            { word: "uncommon", meaning: "không phổ biến, hiếm" },
+            { word: "fragments", meaning: "mảnh vỡ, mảnh nhỏ" },
+            { word: "skeletons", meaning: "bộ xương" },
+            { word: "scraped", meaning: "cào, gạt đi" },
+            { word: "discoloured", meaning: "bị đổi màu" },
+            { word: "spectacular", meaning: "ngoạn mục, đáng chú ý" },
+            { word: "investigation", meaning: "cuộc điều tra" },
+            { word: "specialists", meaning: "chuyên gia" },
+            { word: "ultimately", meaning: "cuối cùng" },
+            { word: "challenging", meaning: "thách thức" },
+            { word: "assertions", meaning: "khẳng định" },
+            { word: "settlement", meaning: "sự định cư" },
+            { word: "identity", meaning: "danh tính" },
+            { word: "circumstances", meaning: "hoàn cảnh" },
+            { word: "examined", meaning: "kiểm tra, xem xét" },
+            { word: "forensic", meaning: "pháp y" },
+            { word: "pathologist", meaning: "bác sĩ bệnh lý học" },
+            { word: "hampered", meaning: "bị cản trở" },
+            { word: "cranium", meaning: "hộp sọ" },
+            { word: "deterioration", meaning: "sự suy thoái, hư hỏng" },
+            { word: "significantly", meaning: "đáng kể, quan trọng" },
+            { word: "origin", meaning: "nguồn gốc" },
+            { word: "anthropologist", meaning: "nhà nhân chủng học" },
+            { word: "proposed", meaning: "đề xuất" },
+            { word: "radiocarbon dating", meaning: "phương pháp định tuổi bằng cacbon phóng xạ" },
+            { word: "geological", meaning: "thuộc địa chất" },
+            { word: "originated", meaning: "bắt nguồn" },
+            { word: "astonishing", meaning: "đáng kinh ngạc" },
+            { word: "bewildering", meaning: "khó hiểu, gây bối rối" },
+            { word: "complexity", meaning: "sự phức tạp" },
+            { word: "conventional", meaning: "thông thường, theo quy ước" },
+            { word: "staggering", meaning: "gây sốc, đáng kinh ngạc" },
+            { word: "particularly", meaning: "đặc biệt" },
+            { word: "considerable", meaning: "đáng kể" },
+            { word: "fascinating", meaning: "hấp dẫn" },
+            { word: "remote", meaning: "xa xôi, hẻo lánh" },
+            { word: "explorer", meaning: "nhà thám hiểm" },
+            { word: "arrival", meaning: "sự đến nơi" },
+            { word: "landfall", meaning: "lần đầu đặt chân lên đất liền" },
+            { word: "fleeting", meaning: "thoáng qua, ngắn ngủi" },
+            { word: "colonising", meaning: "thuộc việc xâm chiếm/lập thuộc địa" },
+            { word: "venture", meaning: "chuyến đi mạo hiểm, dự án" },
+            { word: "command", meaning: "sự chỉ huy" },
+            { word: "expedition", meaning: "cuộc thám hiểm" },
+            { word: "archaeologists", meaning: "nhà khảo cổ học" },
+            { word: "vessels", meaning: "tàu thuyền" },
+            { word: "dating", meaning: "niên đại, việc xác định niên đại" },
+            { word: "recorded", meaning: "được ghi chép lại" },
+            { word: "certainty", meaning: "sự chắc chắn" },
+            { word: "explanation", meaning: "lời giải thích" },
+            { word: "Portuguese", meaning: "người/Bồ Đào Nha" },
+            { word: "shipwreck", meaning: "đắm tàu" },
+            { word: "implausible", meaning: "khó tin" },
+            { word: "concrete evidence", meaning: "bằng chứng cụ thể" },
+            { word: "drastic", meaning: "mạnh mẽ, quyết liệt" },
+            { word: "re-evaluation", meaning: "sự đánh giá lại" }
+        ];
+
+        const readingPassage = `<p>One October afternoon, a young New Zealander, Sam Tobin, called his dogs and went for a walk down to the nearby Ruamahanga River. Having been very high for days, the river had at last fallen, and Tobin was eager to see what changes the floods had brought. The family farm borders the river and a four-metre-high flood bank testifies to its natural tendency to flood.</p>
+
+<p>Tobin stepped out onto a broad shoulder of river sand, where he noticed what he initially took to be a whitish rock, lit by the sun. Then, getting closer, he realised it was a bone. Such a thing was not uncommon in these parts - he had often come across bone fragments, or even whole skeletons, of cows and sheep. But as he scraped aside the stones he realised it was a human bone, something quite new in his experience. As he picked it up, he saw it was a skull, discoloured with age.</p>
+
+<p>Tobin replaced the skull and hurried home to tell his mother what the river had delivered to their doorstep. It would prove to be a spectacular find, setting in motion an investigation by some of the country's most respected specialists, and ultimately challenging our most firmly held assertions about the human settlement of New Zealand.</p>
+
+<p>The police were immediately called, but despite a thorough search they could find nothing that might shed light on the identity of the Ruamahanga skull, or the circumstances of its sudden appearance. The skull was then taken north to be examined by forensic pathologist Dr Ferris, at Auckland Hospital. Despite being hampered by its damaged and incomplete condition -the jawbone and lower left portion of the cranium were missing-Dr Ferris determined that the skull was that of a female. He then consulted with a colleague, Dr Koelmeyer, who believed that the deterioration of the bone placed the time of death 'before living memory' and, most significantly as it would turn out, the skull appeared to be European in origin.</p>
+
+<p>Wellington-based forensic anthropologist Dr Watt also examined the skull, and suggested it belonged to a 40-45 year-old. He believed that it could be the remains of an old farm burial, but was not certain, and proposed the use of radiocarbon dating to make sure it wasn't a recent death. As a result, the Institute of Geological and Nuclear Sciences (GNS) in Lower Hutt was contacted and provided with a sample of bone that had originated in the top of the skull. In a little over three weeks the seemingly astonishing results from the GNS laboratory came back. Cutting through the bewildering complexity of the scientific analysis was a single line reading: conventional radiocarbon age approximately 296 years. This was staggering, for the skull was about 200 years older than Dr Koelmeyer had believed.</p>
+
+<p>Of course, a skull of this age wasn't particularly unusual in New Zealand. The Maori people have been living in the country for at least 800 years and scientists frequently come across human remains of considerable age. The fascinating question, however, was how a skull of this race, let alone this gender, had reached these remote islands in the South Pacific at such a time, long before the arrival of the explorer Captain Cook in 1769, and perhaps even before the very first European landfall - the fleeting visit of the Dutch explorer Tasman in 1642 - neither of whom had women among their crews.</p>
+
+<p>The first known European women in the Pacific came with a doomed colonising venture which sailed from Peru in 1595 under the command of Spanish captain Mendana. However, it is unlikely the Ruamahanga skull originated from this expedition because no evidence of Mendana's ships has ever been found in New Zealand, while a team of archaeologists working in the Solomon Islands in 1970 did discover the remains of European vessels dating from the 16th century.</p>
+
+<p>Two centuries were to pass before the first recorded European females arrived in New Zealand, both having escaped from prison in Australia. Kathleen Hagerty and Charlotte Edgar are known to have reached the country in 1806. How then do we account for the Ruamahanga skull, which appears to be about 100 years older than that? It is impossible to say with certainty, but the most likely explanation is that a Spanish or Portuguese trading-hip was washed onto these wild shores as a result of a shipwreck and a woman got ashore. Implausible, perhaps, but the Ruamahanga skull, today resting in the Wellington Museum, could be the kind of concrete evidence that demands such a drastic re-evaluation of history.</p>`;
+
+        const readingQuestions = [
+            {
+                id: 1,
+                text: "The Ruamahanga River often floods.",
+                type: "true-false-not-given",
+                options: ["TRUE", "FALSE", "NOT GIVEN"],
+                answer: "TRUE",
+                hint: "Look for evidence in the passage about the river's flooding pattern.",
+                evidence: "The family farm borders the river and a four-metre-high flood bank testifies to its natural tendency to flood."
+            },
+            {
+                id: 2,
+                text: "When Tobin first found the object in the river, he mistook it for something else.",
+                type: "true-false-not-given",
+                options: ["TRUE", "FALSE", "NOT GIVEN"],
+                answer: "TRUE",
+                hint: "Check what Tobin initially thought when he first noticed the object.",
+                evidence: "Tobin noticed what he initially took to be a whitish rock, lit by the sun. Then, getting closer, he realised it was a bone."
+            },
+            {
+                id: 3,
+                text: "Tobin could not decide what part of the body the bone came from.",
+                type: "true-false-not-given",
+                options: ["TRUE", "FALSE", "NOT GIVEN"],
+                answer: "FALSE",
+                hint: "What did Tobin determine about the bone when he examined it more closely?",
+                evidence: "As he picked it up, he saw it was a skull, discoloured with age."
+            },
+            {
+                id: 4,
+                text: "Tobin's mother was surprised that the skull caused debate among specialists.",
+                type: "true-false-not-given",
+                options: ["TRUE", "FALSE", "NOT GIVEN"],
+                answer: "NOT GIVEN",
+                hint: "Is there any information in the passage about Tobin's mother's reaction to the specialists' debate?",
+                evidence: "The passage does not mention Tobin's mother's reaction to the specialists' involvement."
+            },
+            {
+                id: 5,
+                type: "flowchart",
+                blanks: {
+                    5: {
+                        answer: "police",
+                        hint: "Who was called immediately after the skull was found to search for more information?",
+                        evidence: "The police were immediately called, but despite a thorough search they could find nothing that might shed light on the identity of the Ruamahanga skull..."
+                    },
+                    6: {
+                        answer: "European",
+                        hint: "What did Dr Koelmeyer believe about the origin of the skull?",
+                        evidence: "The skull appeared to be European in origin."
+                    },
+                    7: {
+                        answer: "radiocarbon",
+                        hint: "What scientific method did Dr Watt propose to determine the skull's age?",
+                        evidence: "He proposed the use of radiocarbon dating to make sure it wasn't a recent death."
+                    },
+                    8: {
+                        answer: "sample",
+                        hint: "What was taken from the skull and sent to the laboratory for testing?",
+                        evidence: "The Institute of Geological and Nuclear Sciences (GNS) was contacted and provided with a sample of bone that had originated in the top of the skull."
+                    },
+                    9: {
+                        answer: "296",
+                        hint: "What was the radiocarbon dating result for the skull's age?",
+                        evidence: "Conventional radiocarbon age approximately 296 years."
+                    }
+                }
+            },
+            {
+                id: 10,
+                type: "notes",
+                blanks: {
+                    10: {
+                        answer: "race",
+                        hint: "What characteristic of the skull (besides age and gender) made it unusual compared to other finds in New Zealand?",
+                        evidence: "The fascinating question was how a skull of this race, let alone this gender, had reached these remote islands in the South Pacific at such a time..."
+                    },
+                    11: {
+                        answer: "archaeologists",
+                        hint: "Who discovered European vessels from the Mendana period in the Solomon Islands?",
+                        evidence: "A team of archaeologists working in the Solomon Islands in 1970 did discover the remains of European vessels dating from the 16th century."
+                    },
+                    12: {
+                        answer: "Australia",
+                        hint: "Where had Hagerty and Edgar escaped from before arriving in New Zealand?",
+                        evidence: "Both having escaped from prison in Australia. Kathleen Hagerty and Charlotte Edgar are known to have reached the country in 1806."
+                    },
+                    13: {
+                        answer: "shipwreck",
+                        hint: "What event is proposed as the most likely explanation for how a European woman reached New Zealand in the 17th century?",
+                        evidence: "The most likely explanation is that a Spanish or Portuguese trading-hip was washed onto these wild shores as a result of a shipwreck and a woman got ashore."
+                    }
+                }
+            }
+        ];
+
+        // State
+        let vocabAnswers = {};
+        let readingAnswers = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVocabulary();
+            initializeReading();
+            setupEventListeners();
+        });
+
+        function initializeVocabulary() {
+            const wordBox = document.getElementById('word-box');
+            wordBox.innerHTML = '';
+
+            // Shuffle vocabulary words for display in word box
+            const shuffled = [...vocabularyData].sort(() => Math.random() - 0.5);
+            const allWords = shuffled.map(v => v.word).join(', ');
+            wordBox.textContent = allWords;
+
+            const vocabQuestionsDiv = document.getElementById('vocab-questions');
+            vocabQuestionsDiv.innerHTML = '';
+
+            vocabularyData.forEach((vocab, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'vocab-question-box';
+                questionDiv.id = `vocab-q-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${index + 1}</div>
+                    <div class="question-meaning">${vocab.meaning}</div>
+                    <input type="text" class="answer-input" id="vocab-answer-${index}" placeholder="Type your answer here">
+                    <div class="feedback-text" id="vocab-feedback-${index}"></div>
+                `;
+
+                vocabQuestionsDiv.appendChild(questionDiv);
+            });
+        }
+
+        function checkVocabularyAnswers() {
+            let correct = 0;
+
+            vocabularyData.forEach((vocab, index) => {
+                const input = document.getElementById(`vocab-answer-${index}`);
+                const feedback = document.getElementById(`vocab-feedback-${index}`);
+                const questionBox = document.getElementById(`vocab-q-${index}`);
+                const answer = input.value.trim().toLowerCase();
+
+                if (!answer) {
+                    feedback.textContent = 'Please enter an answer.';
+                    feedback.className = 'feedback-text show incorrect';
+                    input.className = 'answer-input';
+                    questionBox.classList.remove('answered', 'incorrect');
+                    return;
+                }
+
+                const isCorrect = answer === vocab.word.toLowerCase();
+                if (isCorrect) correct++;
+
+                questionBox.classList.add('answered');
+                if (!isCorrect) questionBox.classList.add('incorrect');
+
+                if (isCorrect) {
+                    feedback.textContent = '✓ Correct!';
+                    feedback.className = 'feedback-text show correct';
+                    input.className = 'answer-input correct';
+                } else {
+                    feedback.textContent = '✗ Incorrect. Try again.';
+                    feedback.className = 'feedback-text show incorrect';
+                    input.className = 'answer-input incorrect';
+                }
+            });
+
+            document.vocabScore = correct;
+            alert(`You got ${correct} out of 61 correct!`);
+        }
+
+        function initializeReading() {
+            document.getElementById('passage-content').innerHTML = readingPassage;
+            const questionsDiv = document.getElementById('questions-list');
+            questionsDiv.innerHTML = '';
+
+            readingQuestions.forEach((q) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-group';
+                questionDiv.id = `question-${q.id}`;
+
+                if (q.type === 'true-false-not-given') {
+                    let optionsHTML = '';
+                    q.options.forEach(option => {
+                        optionsHTML += `
+                            <button class="option-button" onclick="selectTFNGAnswer(${q.id}, '${option}')">
+                                ${option}
+                            </button>
+                        `;
+                    });
+
+                    questionDiv.innerHTML = `
+                        <div class="question-label">Questions 1-4</div>
+                        <div class="question-text">${q.id}. ${q.text}</div>
+                        <div class="question-options">
+                            ${optionsHTML}
+                        </div>
+                        <div class="question-feedback" id="feedback-${q.id}"></div>
+                    `;
+                } else if (q.type === 'flowchart') {
+                    questionDiv.innerHTML = `
+                        <div class="question-label">Questions 5-9</div>
+                        <div class="flowchart-section">
+                            <div class="flowchart-title">Complete the flow-chart below.</div>
+                            <div class="flowchart-item"><strong>The events after the river flooded</strong></div>
+                            <div class="flowchart-item">Tobin found a human skull.</div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">The <input type="text" id="answer-5" placeholder="5" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> were initially involved in trying to explain the presence of the skull.
+                            <div class="answer-feedback" id="feedback-5"></div>
+                            </div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">Dr Ferris believed the skull belonged to a female.</div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">Dr Koelmeyer suggested it was a <input type="text" id="answer-6" placeholder="6" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> skull.
+                            <div class="answer-feedback" id="feedback-6"></div>
+                            </div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">Dr Watt recommended <input type="text" id="answer-7" placeholder="7" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> to establish the skull's age.
+                            <div class="answer-feedback" id="feedback-7"></div>
+                            </div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">A bone <input type="text" id="answer-8" placeholder="8" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> was sent to the GNS.
+                            <div class="answer-feedback" id="feedback-8"></div>
+                            </div>
+                            <div class="flowchart-arrow">↓</div>
+                            <div class="flowchart-item">The age of the skull was about <input type="text" id="answer-9" placeholder="9" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> years.
+                            <div class="answer-feedback" id="feedback-9"></div>
+                            </div>
+                        </div>
+                    `;
+                } else if (q.type === 'notes') {
+                    questionDiv.innerHTML = `
+                        <div class="question-label">Questions 10-13</div>
+                        <div class="notes-section">
+                            <div class="notes-title">Complete the notes below.</div>
+                            
+                            <div class="notes-group">
+                                <div class="notes-heading">Problem of the skull's origins</div>
+                                <div class="notes-item">Old bones common in NZ - Maori living there for 800 years - Ruamahanga skull surprising because of its</div>
+                                <div class="notes-item">• Age</div>
+                                <div class="notes-item">• <input type="text" id="answer-10" placeholder="10" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;">
+                                <div class="answer-feedback" id="feedback-10"></div>
+                                </div>
+                                <div class="notes-item">• Gender</div>
+                            </div>
+
+                            <div class="notes-group">
+                                <div class="notes-heading">Mendana expedition</div>
+                                <div class="notes-item">Possible source of skull</div>
+                                <div class="notes-item">But probably did not visit NZ</div>
+                                <div class="notes-item">Evidence of this expedition found elsewhere by <input type="text" id="answer-11" placeholder="11" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;">
+                                <div class="answer-feedback" id="feedback-11"></div>
+                                </div>
+                            </div>
+
+                            <div class="notes-group">
+                                <div class="notes-heading">New Zealand</div>
+                                <div class="notes-item">First European explorer arrived in 1642</div>
+                                <div class="notes-item">Hagerty and Edgar arrived in 1806 from <input type="text" id="answer-12" placeholder="12" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;"> where they had been imprisoned
+                                <div class="answer-feedback" id="feedback-12"></div>
+                                </div>
+                            </div>
+
+                            <div class="notes-group">
+                                <div class="notes-heading">Possible solution</div>
+                                <div class="notes-item">Ruamahanga skull may have reached NZ in 17th century after a <input type="text" id="answer-13" placeholder="13" style="width: 200px; padding: 8px; border: 2px solid #2c3e50; border-radius: 4px;">
+                                <div class="answer-feedback" id="feedback-13"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                questionsDiv.appendChild(questionDiv);
+            });
+
+            enableHighlighting();
+        }
+
+        function selectTFNGAnswer(questionId, answer) {
+            readingAnswers[questionId] = answer;
+
+            const buttons = document.querySelectorAll(`#question-${questionId} .option-button`);
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === answer) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            updateReadingProgress();
+        }
+
+        function updateReadingProgress() {
+            const tfngQuestions = readingQuestions.filter(q => q.type === 'true-false-not-given');
+            const answeredTFNG = tfngQuestions.filter(q => readingAnswers[q.id]).length;
+            
+            let flowchartAnswered = true;
+            for (let i = 5; i <= 9; i++) {
+                const input = document.getElementById(`answer-${i}`);
+                if (!input || !input.value.trim()) {
+                    flowchartAnswered = false;
+                    break;
+                }
+            }
+
+            let notesAnswered = true;
+            for (let i = 10; i <= 13; i++) {
+                const input = document.getElementById(`answer-${i}`);
+                if (!input || !input.value.trim()) {
+                    notesAnswered = false;
+                    break;
+                }
+            }
+
+            let totalAnswered = answeredTFNG + (flowchartAnswered ? 5 : 0) + (notesAnswered ? 4 : 0);
+            const percentage = Math.round((totalAnswered / 13) * 100);
+
+            document.getElementById('progress-text').textContent = `Answered: ${Math.min(totalAnswered, 13)}/13`;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+
+            if (totalAnswered >= 13) {
+                document.getElementById('all-answered-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('all-answered-msg').classList.add('hidden');
+            }
+        }
+
+        function checkAllReadingAnswers() {
+            let correct = 0;
+
+            readingQuestions.forEach(q => {
+                if (q.type === 'true-false-not-given') {
+                    const answer = readingAnswers[q.id];
+                    const questionDiv = document.getElementById(`question-${q.id}`);
+                    const feedback = document.getElementById(`feedback-${q.id}`);
+
+                    if (!answer) {
+                        feedback.innerHTML = '';
+                        feedback.className = 'question-feedback';
+                        questionDiv.classList.remove('answered');
+                        return;
+                    }
+
+                    const isCorrect = answer === q.answer;
+                    if (isCorrect) correct++;
+
+                    questionDiv.classList.add('answered');
+                    if (!isCorrect) questionDiv.classList.add('incorrect');
+
+                    const buttons = questionDiv.querySelectorAll('.option-button');
+                    buttons.forEach(btn => {
+                        btn.classList.remove('selected');
+                        if (btn.textContent === q.answer) {
+                            btn.classList.add('correct');
+                        } else if (btn.textContent === answer && !isCorrect) {
+                            btn.classList.add('incorrect');
+                        }
+                    });
+
+                    if (isCorrect) {
+                        feedback.innerHTML = '✓ Correct!';
+                        feedback.className = 'question-feedback show correct';
+                    } else {
+                        feedback.innerHTML = `
+                            <div class="hint-title">Hint & Evidence:</div>
+                            <div class="hint-text">${q.hint}</div>
+                            <div class="evidence"><strong>Evidence:</strong> "${q.evidence}"</div>
+                        `;
+                        feedback.className = 'question-feedback show incorrect';
+                    }
+                } else if (q.type === 'flowchart' || q.type === 'notes') {
+                    const questionDiv = document.getElementById(`question-${q.id}`);
+                    let allCorrect = true;
+
+                    for (const [blankId, blankData] of Object.entries(q.blanks)) {
+                        const input = document.getElementById(`answer-${blankId}`);
+                        const answer = input.value.trim().toLowerCase();
+                        const correctAnswer = blankData.answer.toLowerCase();
+                        const answerCorrect = answer === correctAnswer;
+                        const feedbackDiv = document.getElementById(`feedback-${blankId}`);
+
+                        if (!answerCorrect) {
+                            allCorrect = false;
+                        }
+
+                        if (answer === '') {
+                            // No answer provided - don't show feedback
+                            if (feedbackDiv) {
+                                feedbackDiv.innerHTML = '';
+                                feedbackDiv.className = 'answer-feedback';
+                            }
+                        } else if (answerCorrect) {
+                            correct++;
+                            input.style.backgroundColor = '#e8f5e9';
+                            input.style.borderColor = '#4caf50';
+                            input.style.color = '#2e7d32';
+                            input.style.fontWeight = '600';
+                            
+                            if (feedbackDiv) {
+                                feedbackDiv.innerHTML = '✓ Correct!';
+                                feedbackDiv.className = 'answer-feedback show correct';
+                            }
+                        } else {
+                            // Incorrect answer - show hints and evidence
+                            input.style.backgroundColor = '#fff3cd';
+                            input.style.borderColor = '#f44336';
+                            input.style.color = '#856404';
+                            
+                            if (feedbackDiv) {
+                                feedbackDiv.innerHTML = `
+                                    <div class="hint-title">Hint & Evidence:</div>
+                                    <div class="hint-text">${blankData.hint}</div>
+                                    <div class="evidence"><strong>Evidence:</strong> "${blankData.evidence}"</div>
+                                `;
+                                feedbackDiv.className = 'answer-feedback show incorrect';
+                            }
+                        }
+                    }
+
+                    questionDiv.classList.add('answered');
+                    if (!allCorrect) questionDiv.classList.add('incorrect');
+                }
+            });
+
+            document.readingScore = correct;
+        }
+
+        function enableHighlighting() {
+            const passageContent = document.getElementById('passage-content');
+            const color = document.getElementById('highlight-color');
+
+            passageContent.addEventListener('mouseup', function() {
+                const selection = window.getSelection();
+                if (selection.toString().length > 0) {
+                    const range = selection.getRangeAt(0);
+                    const span = document.createElement('span');
+                    span.style.backgroundColor = color.value;
+                    span.style.cursor = 'pointer';
+                    span.className = 'text-highlighted';
+                    
+                    try {
+                        range.surroundContents(span);
+                    } catch (e) {
+                        const contents = range.extractContents();
+                        span.appendChild(contents);
+                        range.insertNode(span);
+                    }
+                    
+                    selection.removeAllRanges();
+
+                    span.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const parent = span.parentNode;
+                        while (span.firstChild) {
+                            parent.insertBefore(span.firstChild, span);
+                        }
+                        parent.removeChild(span);
+                    });
+                }
+            });
+
+            color.addEventListener('change', function() {
+                const highlights = document.querySelectorAll('.text-highlighted');
+                highlights.forEach(h => h.style.backgroundColor = color.value);
+            });
+        }
+
+        function clearHighlights() {
+            const highlights = document.querySelectorAll('.text-highlighted');
+            highlights.forEach(span => {
+                const parent = span.parentNode;
+                while (span.firstChild) {
+                    parent.insertBefore(span.firstChild, span);
+                }
+                parent.removeChild(span);
+            });
+        }
+
+        function proceedToReading() {
+            if (document.vocabScore === undefined) {
+                alert('Please check your vocabulary answers first!');
+                return;
+            }
+            goToSection('reading');
+        }
+
+        function proceedToResults() {
+            if (document.readingScore === undefined) {
+                alert('Please check your reading answers first!');
+                return;
+            }
+            goToSection('results');
+            showResults();
+        }
+
+        function showResults() {
+            const vocabScore = document.vocabScore || 0;
+            const readingScore = document.readingScore || 0;
+            const totalScore = vocabScore + readingScore;
+            const totalMax = 74;
+            const percentage = Math.round((totalScore / totalMax) * 100);
+
+            document.getElementById('final-score').textContent = `${totalScore}/${totalMax}`;
+            document.getElementById('vocab-score').textContent = `${vocabScore}/61`;
+            document.getElementById('reading-score').textContent = `${readingScore}/13`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Excellent work! You have mastered this material.';
+            } else if (percentage >= 80) {
+                message = 'Very good! You have a strong understanding of the material.';
+            } else if (percentage >= 70) {
+                message = 'Good effort! Review the areas where you struggled.';
+            } else if (percentage >= 60) {
+                message = 'You are on the right track. Continue practicing to improve.';
+            } else {
+                message = 'Keep practicing! Review the material and try again.';
+            }
+
+            document.getElementById('results-message').textContent = message;
+        }
+
+        function goToSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${section}-section`).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        }
+
+        function restartExercise() {
+            vocabAnswers = {};
+            readingAnswers = {};
+            document.vocabScore = undefined;
+            document.readingScore = undefined;
+
+            initializeVocabulary();
+            initializeReading();
+            goToSection('vocab');
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    goToSection(this.dataset.section);
+                });
+            });
+
+            document.addEventListener('input', function(e) {
+                if (e.target.id && e.target.id.startsWith('answer-')) {
+                    updateReadingProgress();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
