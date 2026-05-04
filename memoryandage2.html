@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Comprehension: Memory and Age</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans', 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #f5f1e8 0%, #e8dcc8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            font-style: italic;
+        }
+
+        .section {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Vocabulary Section */
+        .vocabulary-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .vocab-instruction {
+            background: #f9f7f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2c3e50;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+
+        .word-box {
+            background: #f5f1e8;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 35px;
+            border: 2px solid #d0c5b8;
+            line-height: 1.8;
+            font-size: 1em;
+            color: #2c3e50;
+            font-weight: 500;
+            font-family: 'Noto Sans', sans-serif;
+            word-wrap: break-word;
+        }
+
+        .vocab-question-box {
+            background: #f9f7f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2c3e50;
+        }
+
+        .vocab-question-box.answered {
+            border-left-color: #4caf50;
+            background: #f1f8f5;
+        }
+
+        .vocab-question-box.answered.incorrect {
+            border-left-color: #f44336;
+            background: #fef5f5;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .question-meaning {
+            color: #34495e;
+            font-size: 1em;
+            margin-bottom: 12px;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d0c5b8;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: 'Georgia', serif;
+            margin-bottom: 12px;
+        }
+
+        .answer-input.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .answer-input.incorrect {
+            border-color: #f44336;
+            background: #fff3cd;
+        }
+
+        .feedback-text {
+            font-size: 0.95em;
+            padding: 8px 0;
+            display: none;
+        }
+
+        .feedback-text.show {
+            display: block;
+        }
+
+        .feedback-text.correct {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .feedback-text.incorrect {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1a252f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 62, 80, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        /* Reading Section */
+        .reading-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            height: calc(100vh - 200px);
+            margin: -40px;
+            padding: 40px;
+        }
+
+        @media (max-width: 1200px) {
+            .reading-container {
+                grid-template-columns: 1fr;
+                height: auto;
+                gap: 30px;
+            }
+        }
+
+        .reading-panel, .questions-panel {
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .reading-panel::-webkit-scrollbar, .questions-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .reading-panel::-webkit-scrollbar-track, .questions-panel::-webkit-scrollbar-track {
+            background: #f0ebe3;
+        }
+
+        .reading-panel::-webkit-scrollbar-thumb, .questions-panel::-webkit-scrollbar-thumb {
+            background: #bdc3c7;
+            border-radius: 4px;
+        }
+
+        .passage-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .passage-text {
+            font-size: 1.05em;
+            line-height: 1.8;
+            color: #2c3e50;
+            text-align: justify;
+        }
+
+        .passage-text p {
+            margin-bottom: 18px;
+        }
+
+        .passage-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f7f4;
+            border-left: 4px solid #2c3e50;
+            border-radius: 4px;
+        }
+
+        .section-heading {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .highlight-tool {
+            background: #fff3cd;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95em;
+            color: #856404;
+            flex-wrap: wrap;
+        }
+
+        .highlight-tool input[type="color"] {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .highlight-tool button {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .text-highlighted {
+            background-color: #ffeb3b;
+            cursor: pointer;
+        }
+
+        /* Questions Section */
+        .questions-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0d5c8;
+        }
+
+        .question-group {
+            margin-bottom: 28px;
+            padding: 18px;
+            background: #f9f7f4;
+            border-radius: 8px;
+            border-left: 4px solid #2c3e50;
+        }
+
+        .question-group.answered {
+            border-left-color: #4caf50;
+            background: #f1f8f5;
+        }
+
+        .question-group.answered.incorrect {
+            border-left-color: #f44336;
+            background: #fef5f5;
+        }
+
+        .question-label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            color: #34495e;
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-button {
+            background: white;
+            border: 2px solid #d0c5b8;
+            padding: 12px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            color: #2c3e50;
+            text-transform: none;
+        }
+
+        .option-button:hover {
+            background: #f0ebe3;
+            border-color: #2c3e50;
+        }
+
+        .option-button.selected {
+            background: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .option-button.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+            pointer-events: none;
+        }
+
+        .option-button.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+            pointer-events: none;
+        }
+
+        .question-feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .question-feedback.show {
+            display: block;
+        }
+
+        .question-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 3px solid #4caf50;
+        }
+
+        .question-feedback.incorrect {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 3px solid #ffc107;
+        }
+
+        .answer-feedback {
+            margin-top: 8px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .answer-feedback.show {
+            display: block;
+        }
+
+        .answer-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 3px solid #4caf50;
+        }
+
+        .answer-feedback.incorrect {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 3px solid #ffc107;
+        }
+
+        .hint-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .hint-text {
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .evidence {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        /* Progress Section */
+        .progress-info {
+            background: #f9f7f4;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+            color: #2c3e50;
+        }
+
+        .progress-bar {
+            background: #e0d5c8;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            background: #2c3e50;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Results Section */
+        .results-container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .results-score {
+            font-size: 3em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .results-message {
+            font-size: 1.3em;
+            color: #34495e;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .results-details {
+            background: #f9f7f4;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .results-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0d5c8;
+            font-size: 1.05em;
+        }
+
+        .results-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .results-detail-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .results-detail-value {
+            color: #34495e;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .section-nav {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .section-nav button {
+            padding: 10px 20px;
+            font-size: 0.95em;
+        }
+
+        .section-nav button.active {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .section-nav button:not(.active) {
+            background: #ecf0f1;
+            color: #2c3e50;
+        }
+
+        .check-all-btn {
+            background: #27ae60;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .check-all-btn:hover {
+            background: #229954;
+        }
+
+        .all-answered {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .match-list {
+            background: #f9f7f4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .match-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-left: 4px solid #2c3e50;
+            border-radius: 4px;
+        }
+
+        .match-number {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .match-text {
+            color: #34495e;
+            font-size: 0.95em;
+        }
+
+        .match-answer-input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 8px;
+            border: 2px solid #d0c5b8;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .summary-box {
+            background: #f9f7f4;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .summary-input {
+            display: inline-block;
+            padding: 4px 8px;
+            border-bottom: 2px solid #2c3e50;
+            background: white;
+            border-radius: 3px;
+            min-width: 120px;
+            text-align: center;
+            margin: 0 2px;
+        }
+
+        .match-dropdown {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #d0c5b8;
+            border-radius: 6px;
+            font-size: 1em;
+            background-color: white;
+            color: #2c3e50;
+            cursor: pointer;
+            font-family: 'Noto Sans', sans-serif;
+        }
+
+        .match-dropdown:hover {
+            border-color: #2c3e50;
+        }
+
+        .match-dropdown:focus {
+            outline: none;
+            border-color: #2c3e50;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        }
+
+        .match-dropdown.correct {
+            border-color: #4caf50;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .match-dropdown.incorrect {
+            border-color: #f44336;
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reading Comprehension Exercise</h1>
+            <p>Passage 2: Memory and Age</p>
+        </div>
+
+        <!-- Student Info Section -->
+        <div class="section active" id="student-info-section">
+            <div class="vocabulary-container" style="max-width: 600px;">
+                <div class="vocab-instruction" style="background: #e3f2fd; border-left-color: #1976d2;">
+                    <strong>Student Information</strong>
+                    <p style="margin-top: 10px; font-size: 0.95em;">Please fill in your details before starting the test. These fields are required.</p>
+                </div>
+
+                <div style="background: #f9f7f4; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <label for="student-name" style="display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50;">Full Name *</label>
+                        <input type="text" id="student-name" class="answer-input" placeholder="Enter your full name" required>
+                        <div class="feedback-text" id="name-feedback" style="font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+
+                    <div style="margin-bottom: 30px;">
+                        <label for="student-class" style="display: block; font-weight: 600; margin-bottom: 8px; color: #2c3e50;">Class *</label>
+                        <input type="text" id="student-class" class="answer-input" placeholder="Enter your class (e.g., 10A, 11B)" required>
+                        <div class="feedback-text" id="class-feedback" style="font-size: 0.85em; margin-top: 5px;"></div>
+                    </div>
+
+                    <button class="btn-primary" onclick="startTest()" style="width: 100%; padding: 14px; font-size: 1.05em;">Start Test</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vocabulary Section -->
+        <div class="section" id="vocab-section">
+            <div class="section-nav">
+                <button class="nav-btn active" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn" data-section="reading">Reading</button>
+                <button class="nav-btn" data-section="results">Results</button>
+            </div>
+
+            <div class="vocabulary-container">
+                <div class="vocab-instruction">
+                    <strong>Instructions:</strong> Choose the word from the word box that matches each Vietnamese meaning below. Type your answer in the text field.
+                </div>
+
+                <div class="word-box" id="word-box"></div>
+
+                <div id="vocab-questions"></div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="checkVocabularyAnswers()">Check Vocabulary Answers</button>
+                    <button class="btn-secondary" onclick="proceedToReading()">Proceed to Reading</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Section -->
+        <div class="section" id="reading-section">
+            <div class="section-nav">
+                <button class="nav-btn" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn active" data-section="reading">Reading</button>
+                <button class="nav-btn" data-section="results">Results</button>
+            </div>
+
+            <div class="reading-container">
+                <!-- Left Panel: Reading Passage -->
+                <div class="reading-panel">
+                    <div class="passage-title">Memory and Age</div>
+
+                    <div class="highlight-tool">
+                        <label for="highlight-color">Highlight color:</label>
+                        <input type="color" id="highlight-color" value="#ffeb3b">
+                        <button class="btn-primary" onclick="clearHighlights()" style="padding: 8px 16px; font-size: 0.9em;">Clear Highlights</button>
+                    </div>
+
+                    <div class="passage-text" id="passage-content"></div>
+                </div>
+
+                <!-- Right Panel: Questions -->
+                <div class="questions-panel">
+                    <div class="questions-title">Questions 14-27</div>
+                    <div class="progress-info">
+                        <span id="progress-text">Answered: 0/14</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-bar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary check-all-btn" onclick="checkAllReadingAnswers()">Check All Answers</button>
+                    <div class="all-answered hidden" id="all-answered-msg">✓ All questions answered! Check your answers above.</div>
+
+                    <div id="questions-list"></div>
+
+                    <div class="button-group" style="margin-top: 50px;">
+                        <button class="btn-primary" onclick="proceedToResults()">View Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="section" id="results-section">
+            <div class="section-nav">
+                <button class="nav-btn" data-section="vocab">Vocabulary</button>
+                <button class="nav-btn" data-section="reading">Reading</button>
+                <button class="nav-btn active" data-section="results">Results</button>
+            </div>
+
+            <div class="results-container">
+                <div class="results-score" id="final-score">0/63</div>
+                <div class="results-message" id="results-message"></div>
+
+                <div class="results-details">
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Vocabulary Score:</span>
+                        <span class="results-detail-value" id="vocab-score">0/49</span>
+                    </div>
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Reading Comprehension Score:</span>
+                        <span class="results-detail-value" id="reading-score">0/14</span>
+                    </div>
+                    <div class="results-detail-row">
+                        <span class="results-detail-label">Overall Percentage:</span>
+                        <span class="results-detail-value" id="percentage">0%</span>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn-secondary" onclick="restartExercise()">Start Over</button>
+                    <button class="btn-primary" onclick="goToSection('reading')">Review Reading</button>
+                    <button class="btn-primary" style="background: #27ae60;" onclick="submitToGoogleForm()">Submit Results</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // All 49 vocabulary words with meanings
+        const vocabularyData = [
+            { word: "ongoing", meaning: "đang diễn ra" },
+            { word: "maturation", meaning: "sự trưởng thành" },
+            { word: "organ", meaning: "cơ quan (cơ thể)" },
+            { word: "assumption", meaning: "giả định" },
+            { word: "undergo", meaning: "trải qua" },
+            { word: "outperform", meaning: "vượt trội hơn" },
+            { word: "psychologist", meaning: "nhà tâm lý học" },
+            { word: "deteriorate", meaning: "suy giảm" },
+            { word: "inevitable", meaning: "không thể tránh khỏi" },
+            { word: "reflect", meaning: "phản ánh" },
+            { word: "network", meaning: "mạng lưới" },
+            { word: "internal", meaning: "bên trong" },
+            { word: "accomplish", meaning: "hoàn thành" },
+            { word: "typist", meaning: "người đánh máy" },
+            { word: "nimble", meaning: "nhanh nhẹn, khéo léo" },
+            { word: "turn out", meaning: "hóa ra" },
+            { word: "counterpart", meaning: "người tương ứng" },
+            { word: "compensate", meaning: "bù đắp" },
+            { word: "isolation", meaning: "sự cô lập" },
+            { word: "shrink", meaning: "co lại" },
+            { word: "cage", meaning: "lồng" },
+            { word: "enrich", meaning: "làm phong phú" },
+            { word: "stimulation", meaning: "sự kích thích" },
+            { word: "notorious", meaning: "nổi tiếng về điều xấu" },
+            { word: "memory loss", meaning: "sự mất trí nhớ" },
+            { word: "trigger", meaning: "kích hoạt" },
+            { word: "cue", meaning: "tín hiệu gợi nhớ" },
+            { word: "permanent", meaning: "lâu dài" },
+            { word: "longevity", meaning: "tuổi thọ" },
+            { word: "recall", meaning: "nhớ lại" },
+            { word: "determine", meaning: "xác định" },
+            { word: "grasp", meaning: "sự nắm vững" },
+            { word: "instruction", meaning: "sự giảng dạy" },
+            { word: "deficit", meaning: "sự thiếu hụt" },
+            { word: "novice", meaning: "người mới bắt đầu" },
+            { word: "outscore", meaning: "đạt điểm cao hơn" },
+            { word: "crystallize", meaning: "kết tinh, trở nên vững chắc" },
+            { word: "occupation", meaning: "nghề nghiệp" },
+            { word: "apparently", meaning: "dường như" },
+            { word: "dementia", meaning: "chứng sa sút trí tuệ / mất trí nhớ" },
+            { word: "procedure", meaning: "quy trình" },
+            { word: "merge", meaning: "hợp nhất" },
+            { word: "command", meaning: "mệnh lệnh" },
+            { word: "elaborate", meaning: "tinh vi, phức tạp" },
+            { word: "expertise", meaning: "kiến thức chuyên môn" },
+            { word: "retire", meaning: "nghỉ hưu" },
+            { word: "consistently", meaning: "một cách ổn định" },
+            { word: "supposed", meaning: "được cho là" },
+            { word: "prime", meaning: "thời kỳ đỉnh cao" }
+        ];
+
+        const passageContent = `
+            <div class="passage-section">
+                <div class="section-heading">A</div>
+                <p>Aging, it is now clear, is part of an ongoing maturation process that all our organs go through. "In a sense, aging is keyed to the level of vigor of the body and the continuous interaction between levels of body activity and levels of mental activity," reports Arnold B. Scheibel, M.D., whose very academic title reflects how once far-flung domains now converge on the mind and the brain. Scheibel is professor of anatomy, cell biology, psychiatry, and behavioral sciences at the University of California at Los Angeles, and director of university's Brain Research Institute. Experimental evidence has backed up popular assumptions that the aging mind undergoes decay analogous to that of the aging body. Younger monkeys, chimps, and lower animals consistently outperform their older colleagues on memory tests. In humans, psychologists concluded, memory and other mental functions deteriorate over time because of inevitable organic changes in the brain as neurons die off. Mental decline after young adulthood appeared inevitable.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">B</div>
+                <p>Equipped with imaging techniques that capture the brain in action, Stanley Rapoport, Ph.D., at the National Institutes of Health, measured the flow of blood in the brains of old and young people as they went through the task of matching photos of faces. Since blood flow reflects neuronal activity, Rapoport could compare which networks of neurons were being used by different subjects. "Even when the reaction times of our older and younger subjects were the same, the neural networks they used were significantly different. The older subjects were using different internal strategies to accomplish the same result in the same time," Rapoport says. Either the task required greater effort on the part of the older subjects or the work of neurons originally involved in tasks of that type had been taken over by other neurons, creating different networks.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">C</div>
+                <p>At the Georgia Institute of Technology, psychologist Timothy Salthouse, Ph.D., compared a group of very fast and accurate typists of college age with another group in their 60s. since reaction time is faster in younger people and most people's fingers grow less nimble with age, younger typists might be expected to tap right along while the older ones fumble. But both typed 60 words a minute. The older typists, it turned out, achieved their speed with cunning little strategies that made them far more efficient than their younger counterparts: They made fewer finger movements, saving a fraction of a second here and there. They also read ahead in the text. The neural networks involved in typing appear to have been reshaped to compensate for losses in motor skills or other age changes.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">D</div>
+                <p>"When a rat is kept in isolation without playmates or objects to interact with, the animal's brain shrinks, but if we put that rat with 11 other rats in a large cage and give them an assortment of wheels, ladders, and other toys, we can show—after four days— significant differences in its brain," says Diamond, professor of integrative biology. Proliferating dendrites first appear in the visual association areas. After a month in the enriched environment, the whole cerebral cortex has expanded, as has its blood supply. Even in the enriched environment, rats get bored unless the toys are varied. "Animals are just like we are. They need stimulation," says Diamond.</p>
+                <p>One of the most profoundly important mental functions is memory-notorious for its failure with age. So important is memory that the Charles A. Dana foundation recently spent $8.4 million to set up a consortium of leading medical centers to measure memory loss and aging through brain-imaging technology, neurochemical experiment, and cognitive and psychological tests. One thing, however, is already fairly clear—many aspects of memory are not a function of age at all but of education. Memory exists in more than one form. What we call knowledge—facts—is what psychologists such as Harry P. Bahrick, Ph.D., of Ohio Wesleyan University calls semantic memory. Events, conversations, and occurrences in time and space, on the other hand, make up episodic or event memory, which is triggered by cues from the context. If you were around in 1963 you don't need to be reminded of the circumstances surrounding the moment you heard that JFK had been assassinated. That event is etched into your episodic memory.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">E</div>
+                <p>When you forget a less vivid item, like buying a roll of paper towels at the supermarket, you may blame it on your aging memory. It's true that episodic memory begins to decline when most people are in their 50s, but it's never perfect at any age. "Every memory begins as an event," says Bahrick. "Through repetition, certain events leave behind a residue of knowledge, or semantic memory. On a specific day in the past, somebody taught you that two and two are four, but you've been over that information so often you don't remember where you learned it. What started as an episodic memory has become a permanent part of your knowledge base." You remember the content, not the context. Our language knowledge, our knowledge of the world and of people, is largely that permanent or semi permanent residue.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">F</div>
+                <p>Probing the longevity of knowledge, Bahrick tested 1,000 high school graduates to see how well they recalled their algebra. Some had completed the course as recently as a month before, others as long as 50 years earlier. He also determined how long each person had studied algebra, the grade received, and how much the skill was used over the course of adulthood. Surprisingly, a person's grasp of algebra at the time of testing did not depend on how long ago he'd taken the course—the determining factor was the duration of instruction. Those who had spent only a few months learning algebra forgot most of it within two or three years.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">G</div>
+                <p>In another study, Bahrick discovered that people who had taken several courses in Spanish, spread out over a couple of years, could recall, decades later, 60 percent or more of the vocabulary they learned. Those who took just one course retained only a trace after three years. "This long-term residue of knowledge remains stable over the decades, independent of the age of the person and the age of the memory. No serious deficit appears until people get to their 50s and 60s, probably due to the degenerative processes of aging rather than a cognitive loss."</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">H</div>
+                <p>"You could say metamemory is a byproduct of going to school," says psychologist Robert Kail, Ph.D., of Purdue University, who studies children from birth to 20 years, the time of life when mental development is most rapid. "The question-and-answer process, especially exam-taking, helps children learn—and also teaches them how their memory works. This may be one reason why, according to a broad range of studies in people over 60, the better educated a person is, the more likely they are to perform better in life and on psychological tests. A group of adult novice chess players were compared with a group of child experts at the game. In tests of their ability to remember a random series of numbers, the adults, as expected, outscored the children. But when asked to remember the patterns of chess pieces arranged on a board, the children won. "Because they'd played a lot of chess, their knowledge of chess was better organized than that of the adults, and their existing knowledge of chess served as a framework for new memory," explains Kail.</p>
+            </div>
+
+            <div class="passage-section">
+                <div class="section-heading">I</div>
+                <p>Specialized knowledge is a mental resource that only improve with time. Crystallized intelligence about one's occupation apparently does not decline at all until at least age 75, and if there is no disease or dementia, may remain even longer. Special knowledge is often organized by a process called "chunking." If procedure A and procedure B are always done together, for example, the mind may merge them into a single command. When you apply yourself to a specific interest—say, cooking—you build increasingly elaborate knowledge structures that let you do more and do it better. This ability, which is tied to experience, is the essence of expertise. Vocabulary is one such specialized form of accrued knowledge. Research clearly shows that vocabulary improves with time. Retired professionals, especially teachers and journalists, consistently score higher on tests of vocabulary and general information than college students, who are supposed to be in their mental prime.</p>
+            </div>
+        `;
+
+        const readingQuestions = [
+            {
+                id: 14,
+                text: "What does the experiment of typist show in the passage?",
+                type: "multiple-choice",
+                options: [
+                    { letter: "A", text: "Old people reading ability is superior" },
+                    { letter: "B", text: "Losses of age is irreversible" },
+                    { letter: "C", text: "Seasoned tactics made elders more efficient" },
+                    { letter: "D", text: "Old people performed poorly in driving test" }
+                ],
+                answer: "C",
+                hint: "Look at the section about typists (Section C). What strategies did older typists use?",
+                evidence: "The older typists, it turned out, achieved their speed with cunning little strategies that made them far more efficient than their younger counterparts: They made fewer finger movements, saving a fraction of a second here and there. They also read ahead in the text."
+            },
+            {
+                id: 15,
+                text: "Which is correct about rat experiment?",
+                type: "multiple-choice",
+                options: [
+                    { letter: "A", text: "Different toys have different effect for rats" },
+                    { letter: "B", text: "Rat's brain weight increased in both cages" },
+                    { letter: "C", text: "Isolated rat's brain grows new connections" },
+                    { letter: "D", text: "Boring and complicated surroundings affect brain development" }
+                ],
+                answer: "D",
+                hint: "Find the rat experiment details in Section D. What happens to rats in isolation vs. enriched environment?",
+                evidence: "When a rat is kept in isolation without playmates or objects to interact with, the animal's brain shrinks, but if we put that rat with 11 other rats in a large cage and give them an assortment of wheels, ladders, and other toys, we can show—after four days— significant differences in its brain. Even in the enriched environment, rats get bored unless the toys are varied."
+            },
+            {
+                id: 16,
+                text: "What can be concluded in chess game of children group?",
+                type: "multiple-choice",
+                options: [
+                    { letter: "A", text: "They won game with adults" },
+                    { letter: "B", text: "Their organization of chess knowledge is better" },
+                    { letter: "C", text: "Their image memory is better than adults" },
+                    { letter: "D", text: "They used different part of brain when playing chess" }
+                ],
+                answer: "B",
+                hint: "Look at Section I about the chess game experiment. Why did children remember better?",
+                evidence: "Because they'd played a lot of chess, their knowledge of chess was better organized than that of the adults, and their existing knowledge of chess served as a framework for new memory."
+            },
+            {
+                id: 17,
+                text: "What is author's purpose of using \"vocabulary study\" at the end of passage?",
+                type: "multiple-choice",
+                options: [
+                    { letter: "A", text: "Certain people are sensitive to vocabularies while others aren't" },
+                    { letter: "B", text: "Teachers and professionals won by their experience" },
+                    { letter: "C", text: "Vocabulary memory as a crystallized intelligence is hard to decline" },
+                    { letter: "D", text: "Old people use their special zone of brain when study" }
+                ],
+                answer: "C",
+                hint: "What does the passage say about vocabulary in Section J?",
+                evidence: "Vocabulary is one such specialized form of accrued knowledge. Research clearly shows that vocabulary improves with time. Retired professionals, especially teachers and journalists, consistently score higher on tests of vocabulary and general information than college students, who are supposed to be in their mental prime."
+            },
+            {
+                id: 18,
+                type: "summary",
+                answer: "Memory",
+                hint: "What is the main topic that the Dana foundation studied?",
+                evidence: "One of the most profoundly important mental functions is memory-notorious for its failure with age. So important is memory that the Charles A. Dana foundation recently spent $8.4 million to set up a consortium of leading medical centers to measure memory loss and aging through brain-imaging technology, neurochemical experiment, and cognitive and psychological tests."
+            },
+            {
+                id: 19,
+                type: "summary",
+                answer: "psychological",
+                hint: "What types of tests did the Dana foundation use?",
+                evidence: "So important is memory that the Charles A. Dana foundation recently spent $8.4 million to set up a consortium of leading medical centers to measure memory loss and aging through brain-imaging technology, neurochemical experiment, and cognitive and psychological tests."
+            },
+            {
+                id: 20,
+                type: "summary",
+                answer: "semantic memory",
+                hint: "What does the passage call memory that contains facts or knowledge?",
+                evidence: "What we call knowledge—facts—is what psychologists such as Harry P. Bahrick, Ph.D., of Ohio Wesleyan University calls semantic memory."
+            },
+            {
+                id: 21,
+                type: "summary",
+                answer: "episodic memory",
+                hint: "What is the other type of memory that contains events and occurrences?",
+                evidence: "Events, conversations, and occurrences in time and space, on the other hand, make up episodic or event memory, which is triggered by cues from the context."
+            },
+            {
+                id: 22,
+                type: "summary",
+                answer: "algebra",
+                hint: "What subject did Bahrick test 1,000 high school graduates on?",
+                evidence: "Probing the longevity of knowledge, Bahrick tested 1,000 high school graduates to see how well they recalled their algebra. Some had completed the course as recently as a month before, others as long as 50 years earlier."
+            },
+            {
+                id: 23,
+                type: "summary",
+                answer: "vocabulary",
+                hint: "What did people who took multiple Spanish courses remember after decades?",
+                evidence: "In another study, Bahrick discovered that people who had taken several courses in Spanish, spread out over a couple of years, could recall, decades later, 60 percent or more of the vocabulary they learned."
+            },
+            {
+                id: 24,
+                type: "match",
+                text: "Examined both young and old's blood circulation of brain while testing.",
+                answer: "E",
+                people: [
+                    { letter: "A", name: "Harry P. Bahrick" },
+                    { letter: "B", name: "Arnold B. Scheibel" },
+                    { letter: "C", name: "Marion Diamond" },
+                    { letter: "D", name: "Timothy Salthouse" },
+                    { letter: "E", name: "Stanley Rapoport" },
+                    { letter: "F", name: "Robert Kail" }
+                ],
+                hint: "Who measured blood flow in the brains of old and young people?",
+                evidence: "Stanley Rapoport, Ph.D., at the National Institutes of Health, measured the flow of blood in the brains of old and young people as they went through the task of matching photos of faces. Since blood flow reflects neuronal activity, Rapoport could compare which networks of neurons were being used by different subjects."
+            },
+            {
+                id: 25,
+                type: "match",
+                text: "Aging is a significant link between physical and mental activity.",
+                answer: "B",
+                people: [
+                    { letter: "A", name: "Harry P. Bahrick" },
+                    { letter: "B", name: "Arnold B. Scheibel" },
+                    { letter: "C", name: "Marion Diamond" },
+                    { letter: "D", name: "Timothy Salthouse" },
+                    { letter: "E", name: "Stanley Rapoport" },
+                    { letter: "F", name: "Robert Kail" }
+                ],
+                hint: "Who said that aging is related to body vigor and mental activity?",
+                evidence: "\"In a sense, aging is keyed to the level of vigor of the body and the continuous interaction between levels of body activity and levels of mental activity,\" reports Arnold B. Scheibel, M.D., whose very academic title reflects how once far-flung domains now converge on the mind and the brain."
+            },
+            {
+                id: 26,
+                type: "match",
+                text: "Some semantic memory of a event would not fade away after repetition.",
+                answer: "A",
+                people: [
+                    { letter: "A", name: "Harry P. Bahrick" },
+                    { letter: "B", name: "Arnold B. Scheibel" },
+                    { letter: "C", name: "Marion Diamond" },
+                    { letter: "D", name: "Timothy Salthouse" },
+                    { letter: "E", name: "Stanley Rapoport" },
+                    { letter: "F", name: "Robert Kail" }
+                ],
+                hint: "Who explained how events become permanent knowledge through repetition?",
+                evidence: "\"Every memory begins as an event,\" says Bahrick. \"Through repetition, certain events leave behind a residue of knowledge, or semantic memory. On a specific day in the past, somebody taught you that two and two are four, but you've been over that information so often you don't remember where you learned it. What started as an episodic memory has become a permanent part of your knowledge base.\""
+            },
+            {
+                id: 27,
+                type: "match",
+                text: "Rat's brain developed when put in a diverse environment.",
+                answer: "C",
+                people: [
+                    { letter: "A", name: "Harry P. Bahrick" },
+                    { letter: "B", name: "Arnold B. Scheibel" },
+                    { letter: "C", name: "Marion Diamond" },
+                    { letter: "D", name: "Timothy Salthouse" },
+                    { letter: "E", name: "Stanley Rapoport" },
+                    { letter: "F", name: "Robert Kail" }
+                ],
+                hint: "Who conducted the rat experiment with enriched environments?",
+                evidence: "\"When a rat is kept in isolation without playmates or objects to interact with, the animal's brain shrinks, but if we put that rat with 11 other rats in a large cage and give them an assortment of wheels, ladders, and other toys, we can show—after four days— significant differences in its brain,\" says Diamond, professor of integrative biology."
+            }
+        ];
+
+        // State
+        let vocabAnswers = {};
+        let readingAnswers = {};
+        let studentInfo = {
+            name: '',
+            class: ''
+        };
+
+        // Google Form Configuration
+        const GOOGLE_FORM_ID = '1FAIpQLSdn2Gvw9ZsGBlp7Oqiz4EdJB0UqZeB8L5AfYm3BVEnHTmhKqg';
+        const FORM_ENTRIES = {
+            name: 'entry.904577813',
+            class: 'entry.1760558815',
+            answers: 'entry.1850278435',
+            score: 'entry.291189822'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVocabulary();
+            initializeReading();
+            setupEventListeners();
+        });
+
+        function startTest() {
+            const name = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value.trim();
+            const nameError = document.getElementById('name-feedback');
+            const classError = document.getElementById('class-feedback');
+
+            let isValid = true;
+
+            // Validate Name
+            if (!name) {
+                nameError.textContent = '❌ Name is required.';
+                nameError.className = 'feedback-text show incorrect';
+                isValid = false;
+            } else {
+                nameError.textContent = '✓ Valid';
+                nameError.className = 'feedback-text show correct';
+            }
+
+            // Validate Class
+            if (!studentClass) {
+                classError.textContent = '❌ Class is required.';
+                classError.className = 'feedback-text show incorrect';
+                isValid = false;
+            } else {
+                classError.textContent = '✓ Valid';
+                classError.className = 'feedback-text show correct';
+            }
+
+            if (isValid) {
+                studentInfo.name = name;
+                studentInfo.class = studentClass;
+                goToSection('vocab');
+            }
+        }
+
+        function submitToGoogleForm() {
+            const vocabScore = document.vocabScore || 0;
+            const readingScore = document.readingScore || 0;
+            const totalScore = vocabScore + readingScore;
+            
+            // Collect all answers as a string
+            const vocabAnswerStr = Object.entries(vocabAnswers).map(([q, a]) => `Q${q}: ${a}`).join('; ');
+            const readingAnswerStr = Object.entries(readingAnswers).map(([q, a]) => `Q${q}: ${a}`).join('; ');
+            const allAnswers = `Vocabulary: ${vocabAnswerStr} | Reading: ${readingAnswerStr}`;
+            
+            // Build form submission data
+            const formData = new FormData();
+            formData.append(FORM_ENTRIES.name, studentInfo.name);
+            formData.append(FORM_ENTRIES.class, studentInfo.class);
+            formData.append(FORM_ENTRIES.answers, allAnswers);
+            formData.append(FORM_ENTRIES.score, `${totalScore}/63`);
+
+            // Submit to Google Form
+            const formURL = `https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`;
+            
+            fetch(formURL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            })
+            .then(() => {
+                alert('✓ Your results have been submitted successfully!');
+                // Optional: Reset after submission
+                // restartExercise();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Your results have been submitted (or were already recorded).');
+            });
+        }
+
+        // Initialize
+
+        function initializeVocabulary() {
+            const wordBox = document.getElementById('word-box');
+            const shuffled = [...vocabularyData].sort(() => Math.random() - 0.5);
+            const allWords = shuffled.map(v => v.word).join(', ');
+            wordBox.textContent = allWords;
+
+            const vocabQuestionsDiv = document.getElementById('vocab-questions');
+            vocabQuestionsDiv.innerHTML = '';
+
+            vocabularyData.forEach((vocab, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'vocab-question-box';
+                questionDiv.id = `vocab-q-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${index + 1}</div>
+                    <div class="question-meaning">${vocab.meaning}</div>
+                    <input type="text" class="answer-input" id="vocab-answer-${index}" placeholder="Type your answer here">
+                    <div class="feedback-text" id="vocab-feedback-${index}"></div>
+                `;
+
+                vocabQuestionsDiv.appendChild(questionDiv);
+            });
+        }
+
+        function checkVocabularyAnswers() {
+            let correct = 0;
+
+            vocabularyData.forEach((vocab, index) => {
+                const input = document.getElementById(`vocab-answer-${index}`);
+                const feedback = document.getElementById(`vocab-feedback-${index}`);
+                const questionBox = document.getElementById(`vocab-q-${index}`);
+                const answer = input.value.trim().toLowerCase();
+
+                if (!answer) {
+                    feedback.textContent = 'Please enter an answer.';
+                    feedback.className = 'feedback-text show incorrect';
+                    input.className = 'answer-input';
+                    questionBox.classList.remove('answered', 'incorrect');
+                    return;
+                }
+
+                const isCorrect = answer === vocab.word.toLowerCase();
+                if (isCorrect) correct++;
+
+                questionBox.classList.add('answered');
+                if (!isCorrect) questionBox.classList.add('incorrect');
+
+                if (isCorrect) {
+                    feedback.textContent = '✓ Correct!';
+                    feedback.className = 'feedback-text show correct';
+                    input.className = 'answer-input correct';
+                } else {
+                    feedback.textContent = '✗ Incorrect. Try again.';
+                    feedback.className = 'feedback-text show incorrect';
+                    input.className = 'answer-input incorrect';
+                }
+            });
+
+            document.vocabScore = correct;
+            alert(`You got ${correct} out of 49 correct!`);
+        }
+
+        function initializeReading() {
+            document.getElementById('passage-content').innerHTML = passageContent;
+            const questionsDiv = document.getElementById('questions-list');
+            questionsDiv.innerHTML = '';
+
+            // First, add questions 14-17
+            readingQuestions.slice(0, 4).forEach((q) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-group';
+                questionDiv.id = `question-${q.id}`;
+
+                let optionsHTML = '';
+                q.options.forEach(opt => {
+                    optionsHTML += `
+                        <button class="option-button" onclick="selectMCAnswer(${q.id}, '${opt.letter}')">
+                            ${opt.letter} ${opt.text}
+                        </button>
+                    `;
+                });
+
+                questionDiv.innerHTML = `
+                    <div class="question-label">Question ${q.id}</div>
+                    <div class="question-text">${q.text}</div>
+                    <div class="question-options">
+                        ${optionsHTML}
+                    </div>
+                    <div class="question-feedback" id="feedback-${q.id}"></div>
+                `;
+
+                questionsDiv.appendChild(questionDiv);
+            });
+
+            // Then add summary (questions 18-23)
+            const summaryDiv = document.createElement('div');
+            summaryDiv.className = 'question-group';
+            summaryDiv.id = 'summary-group';
+            summaryDiv.innerHTML = `
+                <div class="question-label">Questions 18-23</div>
+                <div style="font-size: 0.9em; color: #34495e; margin-bottom: 15px; background: #f5f1e8; padding: 12px; border-radius: 6px;">Complete the following summary of the paragraphs of Reading Passage Using <strong>NO MORE THAN TWO WORDS</strong> from the Reading Passage for each answer.</div>
+                <div class="summary-box">
+                    It's long been known that as one significant mental function, <input type='text' id='answer-18' class='summary-input' placeholder='______'> deteriorates with age. Charles A. Dana foundation invested millions of dollars to test memory decline. They used advanced technology, neurochemical experiments and ran several cognitive and <input type='text' id='answer-19' class='summary-input' placeholder='______'> experiments. Bahrick called one form "<input type='text' id='answer-20' class='summary-input' placeholder='______'>', which describes factual knowledge. Another one called "<input type='text' id='answer-21' class='summary-input' placeholder='______'>' contains events in time and space format. He conducted two experiments toward to knowledge memory's longevity, he asked 1000 candidates some knowledge of <input type='text' id='answer-22' class='summary-input' placeholder='______'>, some could even remember it decades ago. Second research of Spanish course found that multiple courses participants could remember more than half of <input type='text' id='answer-23' class='summary-input' placeholder='______'> they learned after decades, whereas single course taker only remembered as short as 3 years.
+                </div>
+                <div class="answer-feedback" id="feedback-summary"></div>
+            `;
+            questionsDiv.appendChild(summaryDiv);
+
+            // Finally, add matching questions (24-27)
+            readingQuestions.slice(10, 14).forEach((q) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-group';
+                questionDiv.id = `question-${q.id}`;
+
+                const peopleList = q.people.map(p => `<option value="${p.letter}">${p.letter} ${p.name}</option>`).join('');
+                
+                questionDiv.innerHTML = `
+                    <div class="question-label">Question ${q.id}</div>
+                    <div class="question-text">${q.text}</div>
+                    <div class="match-list">
+                        <div style="margin-bottom: 10px; font-weight: 700; color: #2c3e50;">Choose from:</div>
+                        <select id="answer-${q.id}" class="match-dropdown" onchange="selectMatchAnswer(${q.id}, this.value)">
+                            <option value="">-- Select an option --</option>
+                            ${peopleList}
+                        </select>
+                    </div>
+                    <div class="answer-feedback" id="feedback-${q.id}"></div>
+                `;
+
+                questionsDiv.appendChild(questionDiv);
+            });
+
+            enableHighlighting();
+        }
+
+        function selectMCAnswer(questionId, answer) {
+            readingAnswers[questionId] = answer;
+
+            const buttons = document.querySelectorAll(`#question-${questionId} .option-button`);
+            buttons.forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent.includes(answer)) {
+                    btn.classList.add('selected');
+                }
+            });
+
+            updateReadingProgress();
+        }
+
+        function updateReadingProgress() {
+            const mcQuestions = readingQuestions.filter(q => q.type === 'multiple-choice');
+            const answeredMC = mcQuestions.filter(q => readingAnswers[q.id]).length;
+            
+            let otherAnswered = 0;
+            for (let i = 18; i <= 27; i++) {
+                const input = document.getElementById(`answer-${i}`);
+                if (input && input.value.trim()) {
+                    otherAnswered++;
+                }
+            }
+
+            const totalAnswered = answeredMC + otherAnswered;
+            const percentage = Math.round((totalAnswered / 14) * 100);
+
+            document.getElementById('progress-text').textContent = `Answered: ${totalAnswered}/14`;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+
+            if (totalAnswered >= 14) {
+                document.getElementById('all-answered-msg').classList.remove('hidden');
+            } else {
+                document.getElementById('all-answered-msg').classList.add('hidden');
+            }
+        }
+
+        function selectMatchAnswer(questionId, answer) {
+            readingAnswers[questionId] = answer;
+            updateReadingProgress();
+        }
+
+        function checkAllReadingAnswers() {
+            let correct = 0;
+
+            // Check questions 14-17
+            readingQuestions.slice(0, 4).forEach(q => {
+                const answer = readingAnswers[q.id];
+                const questionDiv = document.getElementById(`question-${q.id}`);
+                const feedback = document.getElementById(`feedback-${q.id}`);
+
+                if (!answer) {
+                    feedback.innerHTML = '';
+                    feedback.className = 'question-feedback';
+                    questionDiv.classList.remove('answered');
+                    return;
+                }
+
+                const isCorrect = answer === q.answer;
+                if (isCorrect) correct++;
+
+                questionDiv.classList.add('answered');
+                if (!isCorrect) questionDiv.classList.add('incorrect');
+
+                const buttons = questionDiv.querySelectorAll('.option-button');
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected');
+                    if (btn.textContent.includes(q.answer)) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent.includes(answer) && !isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                if (isCorrect) {
+                    feedback.innerHTML = '✓ Correct!';
+                    feedback.className = 'question-feedback show correct';
+                } else {
+                    feedback.innerHTML = `
+                        <div class="hint-title">Hint & Evidence:</div>
+                        <div class="hint-text">${q.hint}</div>
+                        <div class="evidence"><strong>Evidence:</strong> "${q.evidence}"</div>
+                    `;
+                    feedback.className = 'question-feedback show incorrect';
+                }
+            });
+
+            // Check summary questions (18-23)
+            readingQuestions.slice(4, 10).forEach(q => {
+                const input = document.getElementById(`answer-${q.id}`);
+                if (!input) return;
+                
+                const answer = input.value.trim().toLowerCase();
+                const correctAnswer = q.answer.toLowerCase();
+                const answerCorrect = answer === correctAnswer;
+                const feedbackDiv = document.getElementById(`feedback-summary`);
+
+                if (answer === '') {
+                    return;
+                }
+
+                if (answerCorrect) {
+                    correct++;
+                    input.style.backgroundColor = '#e8f5e9';
+                    input.style.borderColor = '#4caf50';
+                    input.style.color = '#2e7d32';
+                    input.style.fontWeight = '600';
+                } else {
+                    input.style.backgroundColor = '#fff3cd';
+                    input.style.borderColor = '#f44336';
+                    input.style.color = '#856404';
+                }
+            });
+
+            // Show summary feedback once after checking all
+            const summaryGroup = document.getElementById('summary-group');
+            if (summaryGroup) {
+                const feedbackDiv = document.getElementById(`feedback-summary`);
+                let incorrectQuestions = [];
+                
+                for (let i = 18; i <= 23; i++) {
+                    const input = document.getElementById(`answer-${i}`);
+                    if (input && input.value.trim() && input.value.trim().toLowerCase() !== readingQuestions[i - 14].answer.toLowerCase()) {
+                        incorrectQuestions.push(readingQuestions[i - 14]);
+                    }
+                }
+                
+                summaryGroup.classList.add('answered');
+                if (incorrectQuestions.length > 0) {
+                    summaryGroup.classList.add('incorrect');
+                    
+                    let feedbackHTML = '<div class="hint-title">Incorrect Answers:</div>';
+                    incorrectQuestions.forEach(q => {
+                        feedbackHTML += `
+                            <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.5); border-radius: 4px;">
+                                <div class="hint-title" style="color: #2e7d32;">Q${q.id} - Hint:</div>
+                                <div class="hint-text">${q.hint}</div>
+                                <div class="evidence"><strong>Evidence:</strong> "${q.evidence}"</div>
+                            </div>
+                        `;
+                    });
+                    feedbackDiv.innerHTML = feedbackHTML;
+                    feedbackDiv.className = 'answer-feedback show incorrect';
+                } else {
+                    feedbackDiv.innerHTML = '';
+                    feedbackDiv.className = 'answer-feedback';
+                }
+            }
+
+            // Check matching questions (24-27)
+            readingQuestions.slice(10, 14).forEach(q => {
+                const select = document.getElementById(`answer-${q.id}`);
+                const answer = select.value;
+                const feedback = document.getElementById(`feedback-${q.id}`);
+                const questionDiv = document.getElementById(`question-${q.id}`);
+
+                if (answer === '') {
+                    feedback.innerHTML = '';
+                    feedback.className = 'answer-feedback';
+                    questionDiv.classList.remove('answered');
+                    select.classList.remove('correct', 'incorrect');
+                    return;
+                }
+
+                const isCorrect = answer === q.answer;
+                if (isCorrect) correct++;
+
+                questionDiv.classList.add('answered');
+                if (!isCorrect) questionDiv.classList.add('incorrect');
+
+                if (isCorrect) {
+                    select.classList.add('correct');
+                    select.classList.remove('incorrect');
+                    feedback.innerHTML = '✓ Correct!';
+                    feedback.className = 'answer-feedback show correct';
+                } else {
+                    select.classList.add('incorrect');
+                    select.classList.remove('correct');
+                    feedback.innerHTML = `
+                        <div class="hint-title">Hint & Evidence:</div>
+                        <div class="hint-text">${q.hint}</div>
+                        <div class="evidence"><strong>Evidence:</strong> "${q.evidence}"</div>
+                    `;
+                    feedback.className = 'answer-feedback show incorrect';
+                }
+            });
+
+            document.readingScore = correct;
+        }
+
+        function enableHighlighting() {
+            const passageContent = document.getElementById('passage-content');
+            const color = document.getElementById('highlight-color');
+
+            passageContent.addEventListener('mouseup', function() {
+                const selection = window.getSelection();
+                if (selection.toString().length > 0) {
+                    const range = selection.getRangeAt(0);
+                    const span = document.createElement('span');
+                    span.style.backgroundColor = color.value;
+                    span.style.cursor = 'pointer';
+                    span.className = 'text-highlighted';
+                    
+                    try {
+                        range.surroundContents(span);
+                    } catch (e) {
+                        const contents = range.extractContents();
+                        span.appendChild(contents);
+                        range.insertNode(span);
+                    }
+                    
+                    selection.removeAllRanges();
+
+                    span.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const parent = span.parentNode;
+                        while (span.firstChild) {
+                            parent.insertBefore(span.firstChild, span);
+                        }
+                        parent.removeChild(span);
+                    });
+                }
+            });
+
+            color.addEventListener('change', function() {
+                const highlights = document.querySelectorAll('.text-highlighted');
+                highlights.forEach(h => h.style.backgroundColor = color.value);
+            });
+        }
+
+        function clearHighlights() {
+            const highlights = document.querySelectorAll('.text-highlighted');
+            highlights.forEach(span => {
+                const parent = span.parentNode;
+                while (span.firstChild) {
+                    parent.insertBefore(span.firstChild, span);
+                }
+                parent.removeChild(span);
+            });
+        }
+
+        function proceedToReading() {
+            if (document.vocabScore === undefined) {
+                alert('Please check your vocabulary answers first!');
+                return;
+            }
+            goToSection('reading');
+        }
+
+        function proceedToResults() {
+            if (document.readingScore === undefined) {
+                alert('Please check your reading answers first!');
+                return;
+            }
+            goToSection('results');
+            showResults();
+        }
+
+        function showResults() {
+            const vocabScore = document.vocabScore || 0;
+            const readingScore = document.readingScore || 0;
+            const totalScore = vocabScore + readingScore;
+            const totalMax = 63;
+            const percentage = Math.round((totalScore / totalMax) * 100);
+
+            document.getElementById('final-score').textContent = `${totalScore}/${totalMax}`;
+            document.getElementById('vocab-score').textContent = `${vocabScore}/49`;
+            document.getElementById('reading-score').textContent = `${readingScore}/14`;
+            document.getElementById('percentage').textContent = `${percentage}%`;
+
+            let message = '';
+            if (percentage >= 90) {
+                message = 'Excellent work! You have mastered this material.';
+            } else if (percentage >= 80) {
+                message = 'Very good! You have a strong understanding of the material.';
+            } else if (percentage >= 70) {
+                message = 'Good effort! Review the areas where you struggled.';
+            } else if (percentage >= 60) {
+                message = 'You are on the right track. Continue practicing to improve.';
+            } else {
+                message = 'Keep practicing! Review the material and try again.';
+            }
+
+            document.getElementById('results-message').textContent = message;
+        }
+
+        function goToSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(`${section}-section`).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-section="${section}"]`).classList.add('active');
+        }
+
+        function restartExercise() {
+            vocabAnswers = {};
+            readingAnswers = {};
+            document.vocabScore = undefined;
+            document.readingScore = undefined;
+            
+            // Clear student info
+            document.getElementById('student-name').value = '';
+            document.getElementById('student-class').value = '';
+            document.getElementById('name-feedback').textContent = '';
+            document.getElementById('name-feedback').className = 'feedback-text';
+            document.getElementById('class-feedback').textContent = '';
+            document.getElementById('class-feedback').className = 'feedback-text';
+
+            initializeVocabulary();
+            initializeReading();
+            goToSection('student-info');
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    goToSection(this.dataset.section);
+                });
+            });
+
+            document.addEventListener('input', function(e) {
+                if (e.target.id && e.target.id.startsWith('answer-')) {
+                    updateReadingProgress();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
