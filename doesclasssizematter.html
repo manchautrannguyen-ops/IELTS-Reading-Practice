@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>IELTS Reading Practice — Passage 3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .test-info { display: flex; align-items: center; gap: 30px; font-size: 14px; color: #333; }
+        .header-icons { display: flex; gap: 10px; align-items: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 20px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; flex-shrink: 0; flex-grow: 0; }
+        .section-title { font-weight: bold; margin-bottom: 15px; font-size: 18px; }
+        .nav-arrows { position: fixed; bottom: 100px; right: 20px; display: flex; gap: 5px; z-index: 101; }
+        .nav-arrow { width: 50px; height: 50px; background: #333; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; }
+        .nav-arrow:hover { background: #555; }
+        .nav-arrow:disabled { background: #ccc; cursor: not-allowed; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; border-top: 1px solid #e0e0e0; }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; padding-left: 10px; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 16px; font-weight: 600; color: #333; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .footer__questionNo___3WNct:hover { background-color: #f8f9fa; }
+        .section-prefix { font-size: 16px; }
+        .sectionNr { font-size: 16px; font-weight: bold; }
+        .attemptedCount { font-size: 14px; color: #666; margin-left: 5px; font-weight: 400; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 2px; margin-left: 10px; flex-wrap: wrap; max-width: 60vw; }
+        .subQuestion { width: 32px; height: 32px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 2px; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #ddd; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion:hover { background-color: #f0f0f0; border-color: #999; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .deliver-btn-wrapper { margin-left: auto; padding-right: 20px; }
+        #deliver-button { background: #333; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        #deliver-button:hover { background: #555; }
+        #deliver-button:disabled { background: #aaa; cursor: not-allowed; }
+        .context-menu { position: fixed; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+        .context-menu-item:last-child { border-bottom: none; }
+        .highlight { background-color: #ffff00; }
+        .comment-highlight { background-color: #90EE90; position: relative; cursor: help; }
+        .comment-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; white-space: nowrap; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .comment-highlight:hover .comment-tooltip { opacity: 1; }
+        .question { margin-bottom: 40px; }
+        .question p { margin-bottom: 10px; }
+        .question-prompt { margin-bottom: 20px; }
+        .question ul { list-style: none; padding-left: 0; }
+        .question ul li { margin-bottom: 5px; }
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin-right: 4px; margin-left: 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 28px; width: 70px; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.5); }
+        .questions-container { width: 100%; }
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        .part-header p { margin: 0; }
+        .part-header p:first-child { margin-bottom: 5px; }
+        .timer-container { display: flex; position: relative; cursor: default; color: #333; font-size: 16px; font-weight: 500; align-items: center; }
+        .timer-controls { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; padding: 0; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        .timer-controls button svg { width: 20px; height: 20px; fill: #333; }
+        .hidden { display: none !important; }
+        .matching-form-container { display: flex; flex-direction: column; gap: 10px; }
+        .matching-form-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .matching-form-label { flex: 1; font-size: 15px; }
+        .matching-form-row.correct { background-color: #e9f7ef; padding: 8px; border-radius: 4px; }
+        .matching-form-row.incorrect { background-color: #f8d7da; padding: 8px; border-radius: 4px; }
+        .correct-answer-display { color: #28a745; font-size: 14px; }
+        .correct-answer-highlight { font-weight: bold; color: #28a745; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 8px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #333; }
+        .results-summary { font-size: 18px; margin-bottom: 20px; }
+        .results-summary p { margin-bottom: 8px; }
+        .results-details-container { display: flex; flex-direction: column; gap: 8px; }
+        .result-item { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 4px; font-size: 15px; }
+        .result-item.correct { background: #e9f7ef; }
+        .result-item.incorrect { background: #f8d7da; }
+        #goto-widget { display: flex; align-items: center; gap: 5px; }
+        #goto-input { width: 80px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; }
+        #goto-btn { padding: 4px 10px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 4px; cursor: pointer; }
+        .options-box { background-color: #f9f9f9; border: 1px solid #ddd; padding: 12px 16px; border-radius: 5px; margin: 12px 0 20px; }
+        .options-box p { margin: 4px 0; font-size: 15px; }
+        .matching-form-row select.answer-input { width: 80px; }
+        /* Pre-test student info modal */
+        #student-info-modal { background: rgba(0,0,0,0.75); z-index: 3000; }
+        #student-info-modal .modal-content { max-width: 460px; padding: 32px; }
+        #student-info-modal h2 { margin-bottom: 8px; color: #2c3e50; font-size: 22px; }
+        #student-info-modal .modal-subtitle { color: #666; font-size: 14px; margin-bottom: 22px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 14px; color: #333; }
+        .form-group label .required { color: #dc3545; margin-left: 2px; }
+        .form-group input { width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid #ccc; border-radius: 4px; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus { outline: none; border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.4); }
+        .form-group input.error { border-color: #dc3545; }
+        .form-error-msg { color: #dc3545; font-size: 13px; margin-top: 4px; display: none; }
+        .form-error-msg.show { display: block; }
+        #start-test-btn { width: 100%; padding: 12px; background: #4a90e2; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+        #start-test-btn:hover { background: #357ab8; }
+        /* Submission status */
+        .submission-status { margin-top: 16px; padding: 10px 14px; border-radius: 4px; font-size: 14px; display: none; }
+        .submission-status.show { display: block; }
+        .submission-status.pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .submission-status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .submission-status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .student-display { background: #f1f2ec; padding: 8px 14px; border-radius: 4px; font-size: 13px; color: #333; margin-right: 20px; }
+    </style>
+</head>
+<body>
+
+    <!-- Pre-Test: Student Info Modal -->
+    <div id="student-info-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Before you begin</h2>
+            <p class="modal-subtitle">Please enter your details to start the test. Your name and class are required.</p>
+            <div class="form-group">
+                <label for="student-name">Name<span class="required">*</span></label>
+                <input type="text" id="student-name" autocomplete="name" placeholder="e.g. Nguyen Van A">
+                <div class="form-error-msg" id="name-error">Please enter your name.</div>
+            </div>
+            <div class="form-group">
+                <label for="student-class">Class<span class="required">*</span></label>
+                <input type="text" id="student-class" placeholder="e.g. IELTS 6.5 – Morning">
+                <div class="form-error-msg" id="class-error">Please enter your class.</div>
+            </div>
+            <button id="start-test-btn">Start Test</button>
+        </div>
+    </div>
+
+    <!-- Hidden iframe for Google Form submission (no-CORS workaround) -->
+    <iframe name="gform-submit-target" id="gform-submit-target" style="display:none;width:0;height:0;border:0;" title="form-submit-target"></iframe>
+
+
+    <!-- Header -->
+    <div class="header">
+        <div class="test-info">
+            <span><strong>IELTS Academic Reading — Passage 3</strong></span>
+            <div class="timer-container">
+                <span>⏱</span>&nbsp;<span class="timer-display">25:00</span>
+                <div class="timer-controls">
+                    <button id="timer-toggle-btn" title="Pause/Resume">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button id="timer-reset-btn" title="Reset Timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="header-icons">
+            <div id="student-display-badge" class="student-display hidden"></div>
+            <div id="goto-widget">
+                <label for="goto-input" style="font-size:14px;">Go to Q:</label>
+                <input type="number" id="goto-input" min="27" max="40" placeholder="27-40">
+                <button id="goto-btn">Go</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part Header -->
+    <div class="main-container" id="main-container">
+        <div id="passage-header-container">
+            <div id="part-header-3" class="part-header">
+                <p><strong>Part 3</strong></p>
+                <p>Read the text and answer Questions 27–40. You have 25 minutes to complete this passage.</p>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <!-- PASSAGE PANEL -->
+            <div class="passage-panel" id="passage-panel">
+
+                <div id="passage-text-3" class="reading-passage">
+                    <h4>Does Class Size Matter?</h4>
+
+                    <p><strong>A</strong>&nbsp;&nbsp;Of all the ideas for improving education, few are as simple or attractive as reducing the number of pupils per teacher. Unlike competing proposals for reform, class-size reductions rarely elicit huge outcries or involve structural change. The testing of educators, by contrast, generally arouses the anger of unions. Similarly, establishing special 'charter' schools involves privileging some schools over others, with the credits provided usually coming out of the budgets of struggling local schools. With its uncomplicated appeal, class-size reduction in the U.S. has lately gone from being a subject of primary academic interest to a policy juggernaut with over twenty states aiming at decreasing class sizes.</p>
+
+                    <p><strong>B</strong>&nbsp;&nbsp;Do small classes improve school achievement? To answer this, investigators have attempted to analyse existing data, such as records at the U.S. Department of Education. These reveal that there were steep drops in pupil-teacher ratios between 1969 and 1997, but no significant gains in academic performance.</p>
+
+                    <p>But do these findings mean that class size makes no difference? Not necessarily. For instance, schools strive for more than just high test scores; they also usually try to keep their drop-out rates low. And, indeed, the drop-out rate for older students fell considerably over that period. Because drop-outs generally come from the low end of the achievement distribution, a reduction in the drop-out rate could be expected to pull down average test scores.</p>
+
+                    <p>Another reason for discounting those data is the difficulty of ensuring a level playing field. In a perfect world, U.S. students would all come from well-off families, with two highly educated English-speaking parents who are involved in their children's schooling. Teachers would all be creative and have complete mastery of the subject matter. The reality is very different.</p>
+
+                    <p><strong>C</strong>&nbsp;&nbsp;Over the past 35 years, some studies of existing data have produced evidence that smaller classes benefit students, but most of these studies were poorly designed. The exception was the Tennessee study called Project STAR (Student Teacher Achievement Ratio). Frederick Mosteller of Harvard University has called it 'one of the greatest experiments in education in United States history'.</p>
+
+                    <p>Students entering kindergarten were randomly assigned to one of three kinds of classes: a small class of 13 to 17 students, a regular-size class of 22 to 26 or a regular-size class with both a teacher and a full-time teacher's aide.</p>
+
+                    <p>The students remained in whatever category they had been assigned to throughout the third grade, after which they joined a regular classroom in the fourth. To ensure that teaching quality did not differ, teachers were randomly assigned to small and regular-size classrooms. Few teachers received any special training for working with small classes, and there were no new curricular materials.</p>
+
+                    <p><strong>D</strong>&nbsp;&nbsp;At the end of STAR, researchers analysed the data. Jeremy Finn of New York University and Charles Achilles of Eastern Michigan University found evidence for 'an array of benefits of small classes'. They calculated that students in smaller classes were outperforming their counterparts in regular-sized classes by the first grade and that this advantage persisted even after students returned to larger classes. They also found that the effect was stronger for black and Hispanic minority groups — a significant finding for policy-makers.</p>
+
+                    <p>Eric Hanushek of Stanford, however, criticises some of STAR's key conclusions. He argues that STAR does not prove that gains persist long after students return to regular classes. It was debatable how much later improvement stemmed from other factors, such as a supportive home. Nor does he accept that the benefits accumulate, with participants widening the gap with their peers in larger classes year by year.</p>
+
+                    <p>Hanushek and others have also shown that during the study too many children moved from regular to small classes, probably because school personnel caved in to parent demands. And Hanushek also asserts that STAR failed to ensure good randomisation of teacher and student assignments. However, these points do not undermine STAR's basic findings.</p>
+
+                    <p><strong>E</strong>&nbsp;&nbsp;The largest public class size reduction programme so far, California's, stands more as a warning than as worthy of emulation. That state is trying to reduce classes in kindergarten through grade three despite a shortage of teachers that is most acute in low-income areas.</p>
+
+                    <p>This is exacerbating the disparity in resources available to rich and poor schools in California, because more affluent areas can attract the best teachers. Indeed, some of the extra teachers needed are being recruited from the poorer schools. Researchers found a statistically significant achievement advantage in reading, writing and mathematics for students in classes that had been reduced to 20. What is more, the effect did not vary for students of different backgrounds.</p>
+
+                    <p><strong>F</strong>&nbsp;&nbsp;Wisconsin's Student Achievement Guarantee in Education (SAGE) was a five-year pilot study to do some of the groundwork for a major project. Class sizes were reduced in only 14 schools, but it was noteworthy for targeting schools at which 30% of the students were below poverty level, compared with California's across-the-board approach. SAGE lowered the average pupil-teacher ratio in kindergarten through third grade to 12–15:1 from 21–25:1. Analysts have studied the results of first-grade students in these schools and similar first-grade students elsewhere and found the results accord with those from STAR.</p>
+
+                    <p>STAR and SAGE have made it hard to argue against reducing class sizes. But the California initiative shows that reductions made with too little forethought can yield minuscule gains. Administrators need solid information before they can make sensible policy decisions.</p>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer"></div>
+
+            <!-- QUESTIONS PANEL -->
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-3" class="question-set">
+                    <div class="questions-container">
+
+                        <!-- Q27-31: Section Matching -->
+                        <div class="question" data-q-start="27" data-q-end="31">
+                            <div class="question-prompt">
+                                <p><strong>Questions 27–31</strong></p>
+                                <p>Reading Passage 3 has six sections, <strong>A–F</strong>.</p>
+                                <p>Which section contains the following information?</p>
+                                <p>Choose the correct letter, <strong>A–F</strong>, in boxes 27–31 on your answer sheet.</p>
+                                <p><em><strong>NB</strong> You may use any letter more than once.</em></p>
+                            </div>
+                            <div class="matching-form-container">
+                                <div class="matching-form-row">
+                                    <label for="q27" class="matching-form-label"><strong>27</strong>&nbsp;&nbsp;detailed criticism of the methodology of a project</label>
+                                    <select class="answer-input" id="q27"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q28" class="matching-form-label"><strong>28</strong>&nbsp;&nbsp;a comparison of the data from class-reduction projects</label>
+                                    <select class="answer-input" id="q28"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q29" class="matching-form-label"><strong>29</strong>&nbsp;&nbsp;the level of public interest in the issues of class-size reduction</label>
+                                    <select class="answer-input" id="q29"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q30" class="matching-form-label"><strong>30</strong>&nbsp;&nbsp;details of action taken to protect the validity of a project</label>
+                                    <select class="answer-input" id="q30"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q31" class="matching-form-label"><strong>31</strong>&nbsp;&nbsp;reasons why class composition changed during a project</label>
+                                    <select class="answer-input" id="q31"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Q32-40: Project Matching -->
+                        <div class="question" data-q-start="32" data-q-end="40">
+                            <div class="question-prompt">
+                                <p><strong>Questions 32–40</strong></p>
+                                <p>Which project does each of the following statements refer to?</p>
+                                <p>Choose the correct letter, <strong>A, B</strong> or <strong>C</strong>, in boxes 32–40 on your answer sheet.</p>
+                                <p><em><strong>NB</strong> You may use any letter more than once.</em></p>
+                            </div>
+                            <div class="options-box">
+                                <p><strong>A</strong>&nbsp;&nbsp;Project STAR</p>
+                                <p><strong>B</strong>&nbsp;&nbsp;The California Project</p>
+                                <p><strong>C</strong>&nbsp;&nbsp;SAGE</p>
+                            </div>
+                            <div class="matching-form-container">
+                                <div class="matching-form-row">
+                                    <label for="q32" class="matching-form-label"><strong>32</strong>&nbsp;&nbsp;The student composition of each class was left to chance.</label>
+                                    <select class="answer-input" id="q32"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q33" class="matching-form-label"><strong>33</strong>&nbsp;&nbsp;A long-term improvement in performance was claimed.</label>
+                                    <select class="answer-input" id="q33"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q34" class="matching-form-label"><strong>34</strong>&nbsp;&nbsp;Similar results were obtained for all social groups.</label>
+                                    <select class="answer-input" id="q34"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q35" class="matching-form-label"><strong>35</strong>&nbsp;&nbsp;The project was a preliminary to a more comprehensive study.</label>
+                                    <select class="answer-input" id="q35"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q36" class="matching-form-label"><strong>36</strong>&nbsp;&nbsp;Several different class types were involved in the project.</label>
+                                    <select class="answer-input" id="q36"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q37" class="matching-form-label"><strong>37</strong>&nbsp;&nbsp;A special group of schools was selected to take part.</label>
+                                    <select class="answer-input" id="q37"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q38" class="matching-form-label"><strong>38</strong>&nbsp;&nbsp;Classroom assistants were used as part of the project.</label>
+                                    <select class="answer-input" id="q38"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q39" class="matching-form-label"><strong>39</strong>&nbsp;&nbsp;The project was responsible for aggravating existing problems.</label>
+                                    <select class="answer-input" id="q39"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q40" class="matching-form-label"><strong>40</strong>&nbsp;&nbsp;Certain groups of pupils within the sample were identified as having benefited.</label>
+                                    <select class="answer-input" id="q40"><option value=""></option><option>A</option><option>B</option><option>C</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div><!-- end questions-panel -->
+        </div><!-- end panels-container -->
+    </div><!-- end main-container -->
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prev-btn" onclick="previousQuestion()">&#8592;</button>
+        <button class="nav-arrow" id="next-btn" onclick="nextQuestion()">&#8594;</button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav-row" id="nav-row">
+        <div class="footer__questionWrapper___1tZ46 selected" id="part-btn-3">
+            <button class="footer__questionNo___3WNct">
+                <span class="section-prefix">Part </span><span class="sectionNr">3</span>
+                <span class="attemptedCount">0 of 14</span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP" id="sq-part-3"></div>
+        </div>
+        <div class="deliver-btn-wrapper">
+            <button id="deliver-button">
+                <span>Check Answers</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-note" class="context-menu-item" onclick="addNote()">Note</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+        <div id="menu-clear-all" class="context-menu-item" onclick="clearAllHighlights()">Clear All</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results — Passage 3</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score"></span> / 14</p>
+                <p>Percentage: <span id="results-percent"></span>%</p>
+            </div>
+            <div id="results-details" class="results-details-container"></div>
+            <div id="submission-status" class="submission-status"></div>
+        </div>
+    </div>
+
+    <template id="__bundler_thumbnail" data-bg-color="#ffffff">
+        <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <rect width="1200" height="800" fill="#ffffff"/>
+            <rect x="360" y="180" width="480" height="440" rx="16" fill="#f1f2ec" stroke="#4a90e2" stroke-width="6"/>
+            <text x="600" y="380" text-anchor="middle" font-family="Georgia, serif" font-size="80" font-weight="700" fill="#2c3e50">IELTS</text>
+            <text x="600" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" fill="#4a90e2">Reading · Passage 3</text>
+        </svg>
+    </template>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // STATE
+        let currentQuestion = 27;
+        let selectedRange = null;
+        let timeInSeconds = 1500; // 25 minutes
+        let timerInterval;
+        let studentName = '';
+        let studentClass = '';
+
+        // GOOGLE FORM CONFIG
+        const GFORM_ID = '1FAIpQLScBCtFwpdZGGEkPgmg9FivgfoqTxMkJmC_6dhOglwssyekEaQ';
+        const GFORM_URL = `https://docs.google.com/forms/d/e/${GFORM_ID}/formResponse`;
+        const GFORM_FIELDS = {
+            name:    'entry.1822362000',
+            class:   'entry.23487412',
+            answers: 'entry.752963258',
+            score:   'entry.2113541738'
+        };
+
+        const Q_START = 27;
+        const Q_END = 40;
+
+        // DOM
+        const timerDisplay = document.querySelector('.timer-display');
+        const timerToggleButton = document.getElementById('timer-toggle-btn');
+        const timerResetButton = document.getElementById('timer-reset-btn');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const questionsPanel = document.getElementById('questions-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>';
+        const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        // ANSWERS
+        const correctAnswers = {
+            '27':'D','28':'F','29':'A','30':'C','31':'D',
+            '32':'A','33':'A','34':'B','35':'C','36':'A','37':'C','38':'A','39':'B','40':'A'
+        };
+
+        function buildSubQuestions() {
+            const container = document.getElementById('sq-part-3');
+            container.innerHTML = '';
+            for (let i = Q_START; i <= Q_END; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'subQuestion';
+                btn.textContent = i;
+                btn.onclick = (ev) => { ev.stopPropagation(); goToQuestion(i); };
+                btn.id = `sq-btn-${i}`;
+                container.appendChild(btn);
+            }
+        }
+
+        function isQuestionAnswered(i) {
+            const sel = document.querySelector(`select#q${i}`);
+            if (sel) return sel.value !== '';
+            const textInput = document.querySelector(`input[type="text"]#q${i}`);
+            if (textInput) return textInput.value.trim() !== '';
+            const radio = document.querySelector(`input[name="q${i}"]:checked`);
+            if (radio) return true;
+            return false;
+        }
+
+        function updateAllIndicators() {
+            let count = 0;
+            for (let i = Q_START; i <= Q_END; i++) {
+                if (isQuestionAnswered(i)) count++;
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.toggle('answered', isQuestionAnswered(i));
+                    btn.classList.toggle('active', i === currentQuestion);
+                }
+            }
+            const wrapper = document.getElementById('part-btn-3');
+            if (wrapper) {
+                const span = wrapper.querySelector('.attemptedCount');
+                if (span) span.textContent = `${count} of ${Q_END - Q_START + 1}`;
+            }
+        }
+
+        function goToQuestion(qNum) {
+            currentQuestion = qNum;
+            const allQEls = questionsPanel.querySelectorAll('[data-q-start]');
+            allQEls.forEach(el => {
+                const s = parseInt(el.dataset.qStart);
+                const e = parseInt(el.dataset.qEnd);
+                if (qNum >= s && qNum <= e) {
+                    const target = document.getElementById(`q${qNum}`);
+                    if (target) {
+                        const row = target.closest('.matching-form-row') || target;
+                        const containerRect = questionsPanel.getBoundingClientRect();
+                        const rowRect = row.getBoundingClientRect();
+                        questionsPanel.scrollTop += rowRect.top - containerRect.top - 100;
+                    }
+                }
+            });
+
+            document.querySelectorAll('.answer-input.active-input').forEach(el => el.classList.remove('active-input'));
+            const activeInput = document.getElementById(`q${qNum}`);
+            if (activeInput) activeInput.classList.add('active-input');
+
+            updateAllIndicators();
+            updateNavArrows();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < Q_END) goToQuestion(currentQuestion + 1);
+        }
+        function previousQuestion() {
+            if (currentQuestion > Q_START) goToQuestion(currentQuestion - 1);
+        }
+
+        function updateNavArrows() {
+            document.getElementById('prev-btn').disabled = currentQuestion <= Q_START;
+            document.getElementById('next-btn').disabled = currentQuestion >= Q_END;
+        }
+
+        // Timer
+        function updateTimerDisplay() {
+            const m = Math.floor(timeInSeconds / 60);
+            const s = timeInSeconds % 60;
+            timerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                updateTimerDisplay();
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "Time's up!";
+                }
+            }, 1000);
+            timerToggleButton.innerHTML = pauseIcon;
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerToggleButton.innerHTML = playIcon;
+        }
+
+        function toggleTimer() {
+            if (timerToggleButton.innerHTML.includes('M6 19h4V5H6v14z')) pauseTimer();
+            else startTimer();
+        }
+
+        function resetTimer() {
+            timeInSeconds = 1500;
+            updateTimerDisplay();
+            startTimer();
+        }
+
+        // CHECK ANSWERS
+        function checkAnswers() {
+            const allInputs = document.querySelectorAll('.questions-panel input, .questions-panel select, .questions-panel textarea');
+            allInputs.forEach(inp => inp.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.style.cursor = 'not-allowed';
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const userAnswers = {}; // For Google Form submission
+            const resultsDetails = document.getElementById('results-details');
+            resultsDetails.innerHTML = '';
+
+            document.querySelectorAll('.correct, .incorrect').forEach(el => {
+                el.classList.remove('correct', 'incorrect');
+            });
+            document.querySelectorAll('.correct-answer-display').forEach(el => el.remove());
+
+            for (let i = Q_START; i <= Q_END; i++) {
+                const correct = correctAnswers[String(i)];
+                let userAnswer = '';
+                let isCorrect = false;
+
+                const selEl = document.querySelector(`select#q${i}`);
+                const textEl = document.querySelector(`input[type="text"]#q${i}`);
+                const radioEl = document.querySelector(`input[name="q${i}"]:checked`);
+
+                if (selEl) {
+                    userAnswer = selEl.value;
+                    const row = selEl.closest('.matching-form-row') || selEl.parentNode;
+                    isCorrect = userAnswer === correct;
+                    row.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (textEl) {
+                    userAnswer = textEl.value.trim();
+                    isCorrect = userAnswer.toLowerCase() === (correct||'').toLowerCase();
+                } else if (radioEl) {
+                    userAnswer = radioEl.value;
+                    isCorrect = userAnswer === correct;
+                }
+
+                if (isCorrect) score++;
+                userAnswers[i] = userAnswer || '-';
+
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.remove('answered');
+                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+
+                const item = document.createElement('div');
+                item.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                item.innerHTML = `<span>Q${i}: ${userAnswer || 'Not Answered'}</span><span>${isCorrect ? '✔ Correct' : '✖ Incorrect'}</span>`;
+                resultsDetails.appendChild(item);
+            }
+
+            const total = Q_END - Q_START + 1;
+            document.getElementById('results-score').textContent = score;
+            document.getElementById('results-percent').textContent = Math.round((score / total) * 100);
+            document.getElementById('results-modal').classList.remove('hidden');
+
+            // Submit results to Google Form
+            submitToGoogleForm(userAnswers, score, total);
+        }
+
+        // Build the answers payload string. Example: "Q27:D | Q28:F | Q29:A ..."
+        function buildAnswersString(userAnswers) {
+            const parts = [];
+            for (let i = Q_START; i <= Q_END; i++) {
+                parts.push(`Q${i}:${userAnswers[i] || '-'}`);
+            }
+            return parts.join(' | ');
+        }
+
+        // Submit results to Google Form via hidden iframe (bypasses CORS).
+        // Google Forms accepts standard form-encoded POSTs to /formResponse.
+        function submitToGoogleForm(userAnswers, score, total) {
+            const statusEl = document.getElementById('submission-status');
+            statusEl.className = 'submission-status pending show';
+            statusEl.textContent = 'Submitting your results…';
+
+            const answersString = buildAnswersString(userAnswers);
+            const scoreString = `${score}/${total}`;
+
+            // Build a transient form and submit it into the hidden iframe.
+            const form = document.createElement('form');
+            form.action = GFORM_URL;
+            form.method = 'POST';
+            form.target = 'gform-submit-target';
+            form.style.display = 'none';
+
+            const addField = (name, value) => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = name;
+                inp.value = value;
+                form.appendChild(inp);
+            };
+
+            addField(GFORM_FIELDS.name,    studentName);
+            addField(GFORM_FIELDS.class,   studentClass);
+            addField(GFORM_FIELDS.answers, answersString);
+            addField(GFORM_FIELDS.score,   scoreString);
+
+            document.body.appendChild(form);
+
+            // The iframe load event fires after the form posts. Because of
+            // cross-origin restrictions we cannot read the response, but a
+            // successful load indicates the POST went through.
+            const iframe = document.getElementById('gform-submit-target');
+            let settled = false;
+            const onLoad = () => {
+                if (settled) return;
+                settled = true;
+                statusEl.className = 'submission-status success show';
+                statusEl.textContent = '✔ Results submitted successfully.';
+                iframe.removeEventListener('load', onLoad);
+                form.remove();
+            };
+            iframe.addEventListener('load', onLoad);
+
+            // Fallback: if the load event hasn't fired within 8 seconds,
+            // assume it went through (the request is fire-and-forget).
+            setTimeout(() => {
+                if (settled) return;
+                settled = true;
+                statusEl.className = 'submission-status success show';
+                statusEl.textContent = '✔ Results submitted.';
+                iframe.removeEventListener('load', onLoad);
+                if (form.parentNode) form.remove();
+            }, 8000);
+
+            form.submit();
+        }
+
+        function closeResultsModal() {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        // HIGHLIGHT & NOTE
+        function initializeContextMenu() {
+            const panels = [passagePanel, questionsPanel];
+
+            document.addEventListener('selectionchange', () => {
+                const sel = window.getSelection();
+                if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+                    const range = sel.getRangeAt(0);
+                    if (panels.some(p => p.contains(range.commonAncestorContainer))) {
+                        selectedRange = range;
+                    }
+                }
+            });
+
+            const showMenu = (e) => {
+                const target = e.target;
+                const onHL = target.closest('.highlight, .comment-highlight');
+                const hasSelection = selectedRange && selectedRange.toString().trim().length > 0;
+                let show = false;
+                if (onHL) {
+                    document.getElementById('menu-highlight').style.display = 'none';
+                    document.getElementById('menu-note').style.display = 'none';
+                    document.getElementById('menu-clear').style.display = 'block';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    contextMenu.targetElementForClear = onHL;
+                    show = true;
+                } else if (hasSelection && panels.some(p => p.contains(selectedRange.commonAncestorContainer))) {
+                    document.getElementById('menu-highlight').style.display = 'flex';
+                    document.getElementById('menu-note').style.display = 'flex';
+                    document.getElementById('menu-clear').style.display = 'none';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    show = true;
+                }
+                if (show) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    const mh = contextMenu.offsetHeight, mw = contextMenu.offsetWidth;
+                    let left = e.pageX, top = e.pageY - mh - 5;
+                    if (left + mw > window.innerWidth) left = window.innerWidth - mw - 5;
+                    if (top < 0) top = e.pageY + 5;
+                    contextMenu.style.left = `${left}px`;
+                    contextMenu.style.top = `${top}px`;
+                }
+            };
+
+            panels.forEach(p => p.addEventListener('contextmenu', showMenu));
+            document.addEventListener('click', (e) => {
+                if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) closeContextMenu();
+            });
+        }
+
+        function closeContextMenu() {
+            contextMenu.style.display = 'none';
+            selectedRange = null;
+        }
+
+        function unwrapElement(el) {
+            const parent = el.parentNode;
+            if (!parent) return;
+            while (el.firstChild) parent.insertBefore(el.firstChild, el);
+            parent.removeChild(el);
+            parent.normalize();
+        }
+
+        window.highlightText = () => {
+            if (selectedRange && !selectedRange.collapsed) {
+                const selectedContent = selectedRange.extractContents();
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                span.appendChild(selectedContent);
+                selectedRange.insertNode(span);
+            }
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.addNote = () => {
+            const note = prompt('Enter your note:');
+            if (!note || !selectedRange || selectedRange.collapsed) {
+                closeContextMenu();
+                window.getSelection().removeAllRanges();
+                return;
+            }
+            const span = document.createElement('span');
+            span.className = 'comment-highlight';
+            const tooltip = document.createElement('span');
+            tooltip.className = 'comment-tooltip';
+            tooltip.textContent = note;
+            span.appendChild(selectedRange.extractContents());
+            span.appendChild(tooltip);
+            selectedRange.insertNode(span);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearHighlight = () => {
+            const el = contextMenu.targetElementForClear;
+            if (el) unwrapElement(el);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearAllHighlights = () => {
+            document.querySelectorAll('.highlight, .comment-highlight').forEach(unwrapElement);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        // RESIZER
+        function initResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = passagePanel.offsetWidth;
+            const doDrag = (e) => {
+                const nw = startWidth + e.clientX - startX;
+                if (nw > 200 && (document.body.clientWidth - nw - resizer.offsetWidth) > 200) {
+                    passagePanel.style.flex = `0 0 ${nw}px`;
+                }
+            };
+            const stopDrag = () => {
+                window.removeEventListener('mousemove', doDrag);
+                window.removeEventListener('mouseup', stopDrag);
+            };
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', stopDrag);
+        }
+
+        // GOTO WIDGET
+        document.getElementById('goto-btn').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('goto-input').value);
+            if (val >= Q_START && val <= Q_END) goToQuestion(val);
+        });
+        document.getElementById('goto-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('goto-btn').click();
+        });
+
+        // EXPOSE
+        window.nextQuestion = nextQuestion;
+        window.previousQuestion = previousQuestion;
+        window.goToQuestion = goToQuestion;
+        window.closeResultsModal = closeResultsModal;
+
+        // INIT
+        function initialize() {
+            buildSubQuestions();
+            updateAllIndicators();
+            updateNavArrows();
+            resizer.addEventListener('mousedown', initResize);
+            initializeContextMenu();
+            document.body.addEventListener('input', updateAllIndicators);
+            document.body.addEventListener('change', updateAllIndicators);
+            deliverButton.addEventListener('click', checkAnswers);
+            timerToggleButton.addEventListener('click', toggleTimer);
+            timerResetButton.addEventListener('click', resetTimer);
+            document.querySelectorAll('.matching-form-row').forEach(row => {
+                row.addEventListener('click', () => {
+                    const sel = row.querySelector('select');
+                    if (sel) {
+                        const q = parseInt(sel.id.replace('q', ''));
+                        if (currentQuestion !== q) goToQuestion(q);
+                    }
+                });
+            });
+
+            // Pre-test student info modal — must be completed before the test begins.
+            setupStudentInfoModal();
+        }
+
+        function setupStudentInfoModal() {
+            const modal = document.getElementById('student-info-modal');
+            const nameInput = document.getElementById('student-name');
+            const classInput = document.getElementById('student-class');
+            const nameError = document.getElementById('name-error');
+            const classError = document.getElementById('class-error');
+            const startBtn = document.getElementById('start-test-btn');
+
+            // Disable test interaction until info is provided.
+            deliverButton.disabled = true;
+            timerToggleButton.disabled = true;
+            timerResetButton.disabled = true;
+
+            const clearError = (input, errorEl) => {
+                input.classList.remove('error');
+                errorEl.classList.remove('show');
+            };
+            nameInput.addEventListener('input', () => clearError(nameInput, nameError));
+            classInput.addEventListener('input', () => clearError(classInput, classError));
+
+            const tryStart = () => {
+                const name = nameInput.value.trim();
+                const cls = classInput.value.trim();
+                let ok = true;
+                if (!name) {
+                    nameInput.classList.add('error');
+                    nameError.classList.add('show');
+                    ok = false;
+                }
+                if (!cls) {
+                    classInput.classList.add('error');
+                    classError.classList.add('show');
+                    ok = false;
+                }
+                if (!ok) return;
+
+                studentName = name;
+                studentClass = cls;
+                beginTest();
+                modal.classList.add('hidden');
+            };
+
+            startBtn.addEventListener('click', tryStart);
+            // Allow Enter key to submit from either field.
+            [nameInput, classInput].forEach(inp => {
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); tryStart(); }
+                });
+            });
+
+            // Focus the name field on load for a faster start.
+            setTimeout(() => nameInput.focus(), 100);
+        }
+
+        function beginTest() {
+            // Show student badge in header.
+            const badge = document.getElementById('student-display-badge');
+            badge.textContent = `${studentName} — ${studentClass}`;
+            badge.classList.remove('hidden');
+
+            // Enable controls and start the timer.
+            deliverButton.disabled = false;
+            timerToggleButton.disabled = false;
+            timerResetButton.disabled = false;
+            startTimer();
+        }
+
+        initialize();
+    });
+    </script>
+</body>
+</html>
