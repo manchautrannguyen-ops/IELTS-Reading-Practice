@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>IELTS Reading Practice — Passage 2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .test-info { display: flex; align-items: center; gap: 30px; font-size: 14px; color: #333; }
+        .header-icons { display: flex; gap: 10px; align-items: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 10px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; }
+        .reading-passage .subtitle { text-align: center; font-style: italic; color: #555; margin-bottom: 20px; font-size: 16px; }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; flex-shrink: 0; flex-grow: 0; }
+        .nav-arrows { position: fixed; bottom: 100px; right: 20px; display: flex; gap: 5px; z-index: 101; }
+        .nav-arrow { width: 50px; height: 50px; background: #333; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; }
+        .nav-arrow:hover { background: #555; }
+        .nav-arrow:disabled { background: #ccc; cursor: not-allowed; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; border-top: 1px solid #e0e0e0; }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; padding-left: 10px; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 16px; font-weight: 600; color: #333; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .footer__questionNo___3WNct:hover { background-color: #f8f9fa; }
+        .section-prefix { font-size: 16px; }
+        .sectionNr { font-size: 16px; font-weight: bold; }
+        .attemptedCount { font-size: 14px; color: #666; margin-left: 5px; font-weight: 400; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 2px; margin-left: 10px; flex-wrap: wrap; max-width: 60vw; }
+        .subQuestion { width: 32px; height: 32px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 2px; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #ddd; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion:hover { background-color: #f0f0f0; border-color: #999; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .deliver-btn-wrapper { margin-left: auto; padding-right: 20px; }
+        #deliver-button { background: #333; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        #deliver-button:hover { background: #555; }
+        #deliver-button:disabled { background: #aaa; cursor: not-allowed; }
+        .context-menu { position: fixed; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+        .context-menu-item:last-child { border-bottom: none; }
+        .highlight { background-color: #ffff00; }
+        .comment-highlight { background-color: #90EE90; position: relative; cursor: help; }
+        .comment-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; white-space: nowrap; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .comment-highlight:hover .comment-tooltip { opacity: 1; }
+        .question { margin-bottom: 40px; }
+        .question p { margin-bottom: 10px; }
+        .question-prompt { margin-bottom: 20px; }
+        .question ul { list-style: none; padding-left: 0; }
+        .question ul li { margin-bottom: 5px; }
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 4px 8px; font-size: 16px; margin-right: 4px; margin-left: 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 32px; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.5); }
+        input[type="text"].answer-input { width: 260px; }
+        .questions-container { width: 100%; }
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        .part-header p { margin: 0; }
+        .part-header p:first-child { margin-bottom: 5px; }
+        .timer-container { display: flex; position: relative; cursor: default; color: #333; font-size: 16px; font-weight: 500; align-items: center; }
+        .timer-controls { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; padding: 0; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        .timer-controls button svg { width: 20px; height: 20px; fill: #333; }
+        .hidden { display: none !important; }
+        .tf-question { margin-bottom: 25px; padding: 10px 0; border-radius: 4px; transition: background-color 0.3s; }
+        .tf-question-line { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .tf-question-number { font-weight: bold; min-width: 25px; color: #4a90e2; }
+        .tf-question-text { flex: 1; }
+        .tf-options { display: flex; gap: 15px; flex-wrap: wrap; margin-left: 35px; }
+        .tf-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 15px; }
+        .tf-option input { accent-color: #4a90e2; transform: scale(1.2); }
+        .tf-question.correct { background-color: #e9f7ef; border-left: 4px solid #28a745; padding-left: 6px; }
+        .tf-question.incorrect { background-color: #f8d7da; border-left: 4px solid #dc3545; padding-left: 6px; }
+        .mcq-question .tf-options { flex-direction: column; gap: 8px; align-items: flex-start; }
+        .mcq-question .tf-option { align-items: flex-start; }
+        .match-question { margin-bottom: 22px; padding: 10px; border-radius: 4px; transition: background-color 0.3s; }
+        .match-question.correct { background-color: #e9f7ef; border-left: 4px solid #28a745; }
+        .match-question.incorrect { background-color: #f8d7da; border-left: 4px solid #dc3545; }
+        .match-question .q-line { display: flex; align-items: center; gap: 10px; }
+        .match-question .q-number { font-weight: bold; min-width: 25px; color: #4a90e2; }
+        .match-question .q-text { flex: 1; }
+        .match-select { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 4px 8px; font-size: 16px; height: 32px; min-width: 70px; }
+        .match-select.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.5); }
+        .options-box { background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; padding: 15px 20px; margin: 15px 0; }
+        .options-box p { margin: 0 0 6px 0; font-size: 15px; }
+        .options-box p:last-child { margin-bottom: 0; }
+        .short-answer-question { margin-bottom: 22px; padding: 10px; border-radius: 4px; transition: background-color 0.3s; }
+        .short-answer-question.correct { background-color: #e9f7ef; border-left: 4px solid #28a745; }
+        .short-answer-question.incorrect { background-color: #f8d7da; border-left: 4px solid #dc3545; }
+        .short-answer-question .q-line { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .short-answer-question .q-number { font-weight: bold; min-width: 25px; color: #4a90e2; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 8px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #333; }
+        .results-summary { font-size: 18px; margin-bottom: 20px; }
+        .results-summary p { margin-bottom: 8px; }
+        .results-details-container { display: flex; flex-direction: column; gap: 8px; }
+        .result-item { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 4px; font-size: 15px; }
+        .result-item.correct { background: #e9f7ef; }
+        .result-item.incorrect { background: #f8d7da; }
+        #goto-widget { display: flex; align-items: center; gap: 5px; }
+        #goto-input { width: 80px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; }
+        #goto-btn { padding: 4px 10px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 4px; cursor: pointer; }
+
+        /* === Student-info gate (shown before the test starts) === */
+        .gate-overlay {
+            position: fixed; inset: 0;
+            background: rgba(20,30,45,0.55);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; padding: 20px;
+        }
+        .gate-card {
+            background: #ffffff; border: 1px solid #e0e0e0;
+            border-radius: 6px; padding: 32px 32px 28px;
+            max-width: 440px; width: 100%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+            font-family: Arial, sans-serif;
+        }
+        .gate-card .gate-eyebrow {
+            font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+            color: #4a90e2; margin: 0 0 8px; font-weight: 700;
+        }
+        .gate-card h2 {
+            font-family: 'Merriweather', serif; font-weight: 600;
+            font-size: 24px; margin: 0 0 8px; color: #2c3e50;
+        }
+        .gate-card .gate-sub { font-size: 14px; color: #555; margin: 0 0 22px; }
+        .gate-field { margin-bottom: 14px; }
+        .gate-field label {
+            display: block; font-size: 12px; letter-spacing: 0.05em;
+            text-transform: uppercase; color: #555; margin-bottom: 6px; font-weight: 600;
+        }
+        .gate-field label .req { color: #dc3545; margin-left: 2px; }
+        .gate-field input {
+            width: 100%; font: inherit; font-size: 15px; color: #333;
+            background: #fff; border: 1px solid #ccc; border-radius: 4px;
+            padding: 9px 12px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .gate-field input:focus {
+            border-color: #4a90e2; box-shadow: 0 0 0 3px rgba(74,144,226,0.18);
+        }
+        .gate-field input.invalid {
+            border-color: #dc3545; background: #fbeceb;
+        }
+        .gate-error {
+            font-size: 13px; color: #dc3545; margin: 0 0 12px; min-height: 18px;
+        }
+        .gate-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+        .gate-start-btn {
+            background: #333; color: #fff; border: none;
+            padding: 10px 20px; font-size: 15px; font-weight: 600;
+            cursor: pointer; border-radius: 4px;
+            transition: background .15s;
+        }
+        .gate-start-btn:hover { background: #555; }
+        /* Identity badge added to the header after the gate closes */
+        .student-tag {
+            font-size: 13px; color: #666; margin-left: 24px;
+            padding: 4px 10px; border: 1px solid #e0e0e0; border-radius: 4px;
+            background: #fafafa; white-space: nowrap;
+        }
+        .student-tag b { color: #333; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- Student-info gate: must enter Name + Class before starting the test -->
+    <div class="gate-overlay" id="gate-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+        <div class="gate-card">
+            <p class="gate-eyebrow">Before you begin</p>
+            <h2 id="gate-title">Student information</h2>
+            <p class="gate-sub">Please enter your name and class. The 20-minute timer will start once you begin.</p>
+            <div class="gate-field">
+                <label for="gate-name">Name<span class="req">*</span></label>
+                <input type="text" id="gate-name" autocomplete="name" spellcheck="false" />
+            </div>
+            <div class="gate-field">
+                <label for="gate-class">Class<span class="req">*</span></label>
+                <input type="text" id="gate-class" autocomplete="off" spellcheck="false" />
+            </div>
+            <p class="gate-error" id="gate-error"></p>
+            <div class="gate-actions">
+                <button class="gate-start-btn" id="gate-start" type="button">Start practice</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="test-info">
+            <span><strong>IELTS Academic Reading — Passage 2</strong></span>
+            <div class="timer-container">
+                <span>⏱</span>&nbsp;<span class="timer-display">20:00</span>
+                <div class="timer-controls">
+                    <button id="timer-toggle-btn" title="Pause/Resume">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button id="timer-reset-btn" title="Reset Timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="header-icons">
+            <div id="goto-widget">
+                <label for="goto-input" style="font-size:14px;">Go to Q:</label>
+                <input type="number" id="goto-input" min="14" max="26" placeholder="14-26">
+                <button id="goto-btn">Go</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part Header -->
+    <div class="main-container" id="main-container">
+        <div id="passage-header-container">
+            <div id="part-header-1" class="part-header">
+                <p><strong>Part 2</strong></p>
+                <p>Read the text and answer Questions 14–26. You have 20 minutes to complete this passage.</p>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <!-- PASSAGE PANEL -->
+            <div class="passage-panel" id="passage-panel">
+                <div id="passage-text-1" class="reading-passage">
+                    <h4>Drawing Lessons from History</h4>
+
+                    <p>Numerous ancient civilisations collapsed or disappeared, leaving behind grand ruins reminiscent of what poet Shelley described in his sonnet Ozymandias. The term 'collapse' refers to a significant reduction in population and/or political, economic, and social complexity of a society across a wide area for an extended period.</p>
+
+                    <p>The awe-inspiring ruins left behind by these past societies captivate us all. As children, we marvel at them when we first discover them through pictures-vast stone structures, intricate carvings, or towering temples that defy imagination. As we grow older, many of us plan vacations to witness these remarkable sites firsthand, standing in silent reverence before the remnants of a world that once thrived. We are drawn to their magnificent and haunting beauty, as well as the enigmas they present. The grandeur of these ruins attests to the previous wealth and power of their builders, yet their sudden disappearance challenges our understanding of human resilience. These builders vanished, abandoning the remarkable structures they had painstakingly constructed. How did a once-mighty society end up collapsing, leaving behind only echoes of its former glory?</p>
+
+                    <p>For a long time, it has been suspected that the mysterious disappearance of many such societies was, to some extent, triggered by ecological issues and unintentional destruction of the environmental resources on which their societies relied. This suspicion of unintended ecological suicide, or ecocide, has been substantiated by discoveries made in recent decades by archaeologists, climatologists, historians, palaeontologists, and palynologists (pollen scientists). The processes through which past societies have undermined themselves by damaging their environments can be categorised into eight areas, which vary in significance from one case to another: deforestation and habitat loss, soil degradation, water management challenges, overhunting, overfishing, the impacts of invasive species on native ones, human population growth, and increased human activity.</p>
+
+                    <p>Historical collapses generally followed similar patterns resembling variations on a theme. These patterns often include resource depletion, environmental degradation, internal strife, or external pressures, yet the specific combination and intensity of these factors varied across civilisations. Writers are often tempted to draw analogies between the trajectory of human society and that of an individual's life, speaking of a society's birth, growth, peak, old age, and eventual demise. However, this metaphor proves inaccurate for many past societies: they experienced rapid declines after reaching their peak in terms of population and power, and these rapid declines must have come as a surprise and shock to their inhabitants. It is evident that not all past societies followed this trajectory uniformly to its conclusion: different societies collapsed to varying degrees and in somewhat distinct ways while many societies did not collapse at all. The diversity in collapse mechanisms suggests that while certain systemic vulnerabilities may be universal, their expression is deeply contingent on local conditions, cultural responses, and the interplay of multiple stressors over time.</p>
+
+                    <p>Currently, many individuals believe that environmental problems eclipse other global threats. These environmental problems encompass the same eight factors that contributed to past societies' downfalls, plus four new ones: human-induced climate change, the accumulation of toxic chemicals, energy shortages, and the complete utilisation of the Earth's photosynthetic capacity. However, the seriousness of these modern environmental dilemmas is vigorously debated among the scientific community. Are the perceived risks overstated or undervalued? Will contemporary technology resolve our issues, or is it producing new challenges faster than it can remedy old ones? When one resource (such as wood, oil, or ocean fish) is depleted, can we trust that new alternatives (like plastics, wind and solar energy, or farmed fish) will emerge? Isn't the rate of human population growth slowing down, suggesting we might soon reach a manageable global population?</p>
+
+                    <p>Questions like these highlight why the well-known collapses of past civilisations carry more significance than merely being romantic mysteries. There may be practical lessons to be learnt from these historical failures. However, there are also differences between the modern world and its problems, and those ancient societies and their problems. It would be naive to assume that studying the past will yield straightforward answers directly applicable to today's world. We have certain advantages over past societies that reduce our risks, including our powerful technology (i.e. its beneficial effects), globalisation, modern medicine, and enhanced awareness of both past and distant modern societies. At the same time, there are also factors that heighten our risks in comparison to earlier civilisations: again, our potent technology (i.e. its unintended destructive effects), globalisation (where a problem in one area can affect the entire world), the reliance of millions on modern health care for survival, and our vastly larger human population. Perhaps we can still learn from the past, but only if we carefully contemplate its lessons.</p>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer"></div>
+
+            <!-- QUESTIONS PANEL -->
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-1" class="question-set">
+                    <div class="questions-container">
+
+                        <!-- Q14-16: Multiple Choice -->
+                        <div class="question" data-q-start="14" data-q-end="16">
+                            <div class="question-prompt">
+                                <p><strong>Questions 14-16</strong></p>
+                                <p><em>Choose the correct answer.</em></p>
+                            </div>
+
+                            <div class="tf-question mcq-question" data-q-start="14" data-q-end="14">
+                                <div class="tf-question-line"><span class="tf-question-number">14</span><span class="tf-question-text">In describing the appeal of monumental ruins, the writer highlights</span></div>
+                                <div class="tf-options">
+                                    <label class="tf-option"><input type="radio" name="q14" value="A"> <strong>A</strong>&nbsp;&nbsp;the curiosity of historians about the original purpose of these ruins.</label>
+                                    <label class="tf-option"><input type="radio" name="q14" value="B"> <strong>B</strong>&nbsp;&nbsp;the vast geographical areas covered by these structures.</label>
+                                    <label class="tf-option"><input type="radio" name="q14" value="C"> <strong>C</strong>&nbsp;&nbsp;their profound impact on the field of archaeological research.</label>
+                                    <label class="tf-option"><input type="radio" name="q14" value="D"> <strong>D</strong>&nbsp;&nbsp;the mixture of beauty and mystery these sites represent.</label>
+                                </div>
+                            </div>
+
+                            <div class="tf-question mcq-question" data-q-start="15" data-q-end="15">
+                                <div class="tf-question-line"><span class="tf-question-number">15</span><span class="tf-question-text">Recent findings regarding lost civilisations have</span></div>
+                                <div class="tf-options">
+                                    <label class="tf-option"><input type="radio" name="q15" value="A"> <strong>A</strong>&nbsp;&nbsp;upended established theories.</label>
+                                    <label class="tf-option"><input type="radio" name="q15" value="B"> <strong>B</strong>&nbsp;&nbsp;triggered a heated debate among scientists.</label>
+                                    <label class="tf-option"><input type="radio" name="q15" value="C"> <strong>C</strong>&nbsp;&nbsp;emerged from a range of disciplines.</label>
+                                    <label class="tf-option"><input type="radio" name="q15" value="D"> <strong>D</strong>&nbsp;&nbsp;confirmed a major cause of environmental destruction.</label>
+                                </div>
+                            </div>
+
+                            <div class="tf-question mcq-question" data-q-start="16" data-q-end="16">
+                                <div class="tf-question-line"><span class="tf-question-number">16</span><span class="tf-question-text">In discussing how previous societies fell, the writer mentions that</span></div>
+                                <div class="tf-options">
+                                    <label class="tf-option"><input type="radio" name="q16" value="A"> <strong>A</strong>&nbsp;&nbsp;the pace of collapse showed some resemblance across societies.</label>
+                                    <label class="tf-option"><input type="radio" name="q16" value="B"> <strong>B</strong>&nbsp;&nbsp;the decline of societies was usually a slow and predictable process.</label>
+                                    <label class="tf-option"><input type="radio" name="q16" value="C"> <strong>C</strong>&nbsp;&nbsp;all societies peaked in terms of population and power before collapsing.</label>
+                                    <label class="tf-option"><input type="radio" name="q16" value="D"> <strong>D</strong>&nbsp;&nbsp;ordinary people could occasionally affect the course of events.</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Q17-21: YES/NO/NOT GIVEN -->
+                        <div class="question" data-q-start="17" data-q-end="21">
+                            <div class="question-prompt">
+                                <p><strong>Questions 17-21</strong></p>
+                                <p><em>Do the following statements agree with the claims of the writer in Reading Passage 3?</em></p>
+                                <p><em>In boxes 17-21 on your answer sheet, write</em></p>
+                                <ul style="padding-left:20px;">
+                                    <li><strong><em>YES</em></strong> <em>if the statement agrees with the claims of the writer</em></li>
+                                    <li><strong><em>NO</em></strong> <em>if the statement contradicts the claims of the writer</em></li>
+                                    <li><strong><em>NOT GIVEN</em></strong> <em>if it is impossible to say what the writer thinks about this</em></li>
+                                </ul>
+                            </div>
+
+                            <div class="tf-question" data-q-start="17" data-q-end="17">
+                                <div class="tf-question-line"><span class="tf-question-number">17</span><span class="tf-question-text">The impressive relics of ancient societies were influenced by Shelley's sonnet Ozymandias.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q17" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q17" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q17" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="18" data-q-end="18">
+                                <div class="tf-question-line"><span class="tf-question-number">18</span><span class="tf-question-text">There is a widespread belief that environmental issues pose the principal hazard to the contemporary world.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q18" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q18" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q18" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="19" data-q-end="19">
+                                <div class="tf-question-line"><span class="tf-question-number">19</span><span class="tf-question-text">Scientists have reached a consensus about how severe the present ecological concerns are.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q19" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q19" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q19" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="20" data-q-end="20">
+                                <div class="tf-question-line"><span class="tf-question-number">20</span><span class="tf-question-text">The presence of poisonous substances in high concentrations is a relatively modern issue.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q20" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q20" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q20" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="21" data-q-end="21">
+                                <div class="tf-question-line"><span class="tf-question-number">21</span><span class="tf-question-text">We should reflect cautiously when comparing the past with the present.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q21" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q21" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q21" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Q22-26: Match sentence endings A-F -->
+                        <div class="question" data-q-start="22" data-q-end="26">
+                            <div class="question-prompt">
+                                <p><strong>Questions 22-26</strong></p>
+                                <p><em>Complete each sentence with the correct ending, <strong>A-F</strong>, below.</em></p>
+                            </div>
+
+                            <div class="match-question" data-q-start="22" data-q-end="22">
+                                <div class="q-line"><span class="q-number">22</span><span class="q-text">Evidence of remarkable achievements of certain past civilisations</span><select class="match-select" id="q22"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+                            </div>
+                            <div class="match-question" data-q-start="23" data-q-end="23">
+                                <div class="q-line"><span class="q-number">23</span><span class="q-text">Analogies between the development of an individual and that of a society</span><select class="match-select" id="q23"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+                            </div>
+                            <div class="match-question" data-q-start="24" data-q-end="24">
+                                <div class="q-line"><span class="q-number">24</span><span class="q-text">The environmental challenges that societies encounter</span><select class="match-select" id="q24"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+                            </div>
+                            <div class="match-question" data-q-start="25" data-q-end="25">
+                                <div class="q-line"><span class="q-number">25</span><span class="q-text">In modern society, powerful technology</span><select class="match-select" id="q25"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+                            </div>
+                            <div class="match-question" data-q-start="26" data-q-end="26">
+                                <div class="q-line"><span class="q-number">26</span><span class="q-text">Reflections on ancient events and tendencies</span><select class="match-select" id="q26"><option value="">—</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select></div>
+                            </div>
+
+                            <div class="options-box">
+                                <p><strong>A</strong>&nbsp;&nbsp;are not applicable to all societies.</p>
+                                <p><strong>B</strong>&nbsp;&nbsp;provides a hopeful perspective.</p>
+                                <p><strong>C</strong>&nbsp;&nbsp;is embodied in physical structures.</p>
+                                <p><strong>D</strong>&nbsp;&nbsp;is potentially both positive and negative.</p>
+                                <p><strong>E</strong>&nbsp;&nbsp;will not address current issues directly.</p>
+                                <p><strong>F</strong>&nbsp;&nbsp;have increased compared to the past.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prev-btn" onclick="previousQuestion()">&#8592;</button>
+        <button class="nav-arrow" id="next-btn" onclick="nextQuestion()">&#8594;</button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav-row" id="nav-row">
+        <div class="footer__questionWrapper___1tZ46 selected" id="part-btn-1">
+            <button class="footer__questionNo___3WNct">
+                <span class="section-prefix">Part </span><span class="sectionNr">2</span>
+                <span class="attemptedCount">0 of 13</span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP" id="sq-part-1"></div>
+        </div>
+        <div class="deliver-btn-wrapper">
+            <button id="deliver-button">
+                <span>Check Answers</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-note" class="context-menu-item" onclick="addNote()">Note</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+        <div id="menu-clear-all" class="context-menu-item" onclick="clearAllHighlights()">Clear All</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results — Passage 2</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score"></span> / 13</p>
+                <p>Percentage: <span id="results-percent"></span>%</p>
+            </div>
+            <div id="results-details" class="results-details-container"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // STATE
+        let currentQuestion = 14;
+        let selectedRange = null;
+        let timeInSeconds = 1200; // 20 minutes
+        let timerInterval;
+
+        const Q_START = 14;
+        const Q_END = 26;
+
+        const timerDisplay = document.querySelector('.timer-display');
+        const timerToggleButton = document.getElementById('timer-toggle-btn');
+        const timerResetButton = document.getElementById('timer-reset-btn');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const questionsPanel = document.getElementById('questions-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>';
+        const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        // ANSWERS — answers list per question (multiple accepted variants where reasonable)
+        const correctAnswers = {
+            '14':['D'],
+            '15':['C'],
+            '16':['A'],
+            '17':['NOT GIVEN'],
+            '18':['YES'],
+            '19':['NO'],
+            '20':['YES'],
+            '21':['YES'],
+            '22':['C'],
+            '23':['A'],
+            '24':['F'],
+            '25':['D'],
+            '26':['E']
+        };
+
+        function buildSubQuestions() {
+            const container = document.getElementById('sq-part-1');
+            container.innerHTML = '';
+            for (let i = Q_START; i <= Q_END; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'subQuestion';
+                btn.textContent = i;
+                btn.onclick = (ev) => { ev.stopPropagation(); goToQuestion(i); };
+                btn.id = `sq-btn-${i}`;
+                container.appendChild(btn);
+            }
+        }
+
+        function isQuestionAnswered(i) {
+            const selectEl = document.querySelector(`select#q${i}`);
+            if (selectEl) return selectEl.value !== '';
+            const textInput = document.querySelector(`input[type="text"]#q${i}`);
+            if (textInput) return textInput.value.trim() !== '';
+            const radio = document.querySelector(`input[name="q${i}"]:checked`);
+            if (radio) return true;
+            return false;
+        }
+
+        function updateAllIndicators() {
+            let count = 0;
+            for (let i = Q_START; i <= Q_END; i++) {
+                if (isQuestionAnswered(i)) count++;
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.toggle('answered', isQuestionAnswered(i));
+                    btn.classList.toggle('active', i === currentQuestion);
+                }
+            }
+            const wrapper = document.getElementById('part-btn-1');
+            if (wrapper) {
+                const span = wrapper.querySelector('.attemptedCount');
+                if (span) span.textContent = `${count} of ${Q_END - Q_START + 1}`;
+            }
+        }
+
+        function goToQuestion(qNum) {
+            currentQuestion = qNum;
+            const targetTF = document.querySelector(`.tf-question[data-q-start="${qNum}"]`);
+            const targetSA = document.querySelector(`.short-answer-question[data-q-start="${qNum}"]`);
+            const targetMatch = document.querySelector(`.match-question[data-q-start="${qNum}"]`);
+            const target = targetTF || targetSA || targetMatch;
+            if (target) {
+                const containerRect = questionsPanel.getBoundingClientRect();
+                const rowRect = target.getBoundingClientRect();
+                questionsPanel.scrollTop += rowRect.top - containerRect.top - 80;
+            }
+
+            document.querySelectorAll('.answer-input.active-input, .match-select.active-input').forEach(el => el.classList.remove('active-input'));
+            const activeEl = document.getElementById(`q${qNum}`);
+            if (activeEl) activeEl.classList.add('active-input');
+
+            updateAllIndicators();
+            updateNavArrows();
+        }
+
+        function nextQuestion() { if (currentQuestion < Q_END) goToQuestion(currentQuestion + 1); }
+        function previousQuestion() { if (currentQuestion > Q_START) goToQuestion(currentQuestion - 1); }
+
+        function updateNavArrows() {
+            document.getElementById('prev-btn').disabled = currentQuestion <= Q_START;
+            document.getElementById('next-btn').disabled = currentQuestion >= Q_END;
+        }
+
+        // Timer
+        function updateTimerDisplay() {
+            const m = Math.floor(timeInSeconds / 60);
+            const s = timeInSeconds % 60;
+            timerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                updateTimerDisplay();
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "Time's up!";
+                }
+            }, 1000);
+            timerToggleButton.innerHTML = pauseIcon;
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerToggleButton.innerHTML = playIcon;
+        }
+
+        function toggleTimer() {
+            if (timerToggleButton.innerHTML.includes('M6 19h4V5H6v14z')) pauseTimer();
+            else startTimer();
+        }
+
+        function resetTimer() {
+            timeInSeconds = 1200;
+            updateTimerDisplay();
+            startTimer();
+        }
+
+        // CHECK ANSWERS — only show correct/incorrect, NEVER reveal correct answer
+        function checkAnswers() {
+            const allInputs = document.querySelectorAll('input, textarea, select');
+            allInputs.forEach(inp => inp.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.style.cursor = 'not-allowed';
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const resultsDetails = document.getElementById('results-details');
+            resultsDetails.innerHTML = '';
+
+            document.querySelectorAll('.correct, .incorrect').forEach(el => {
+                el.classList.remove('correct', 'incorrect');
+            });
+
+            for (let i = Q_START; i <= Q_END; i++) {
+                const accepted = correctAnswers[String(i)] || [];
+                let userAnswer = '';
+                let isCorrect = false;
+
+                const selectEl = document.querySelector(`select#q${i}`);
+                const textEl = document.querySelector(`input[type="text"]#q${i}`);
+                const radioEl = document.querySelector(`input[name="q${i}"]:checked`);
+
+                if (selectEl) {
+                    userAnswer = selectEl.value;
+                    isCorrect = accepted.some(a => userAnswer.toUpperCase() === a.toUpperCase()) && userAnswer !== '';
+                    const wrap = selectEl.closest('.match-question');
+                    if (wrap) wrap.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (textEl) {
+                    userAnswer = textEl.value.trim();
+                    isCorrect = accepted.some(a => userAnswer.toLowerCase() === a.toLowerCase());
+                    const wrap = textEl.closest('.short-answer-question');
+                    if (wrap) wrap.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (radioEl) {
+                    userAnswer = radioEl.value;
+                    isCorrect = accepted.includes(userAnswer);
+                    const tfQ = radioEl.closest('.tf-question');
+                    if (tfQ) tfQ.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+
+                if (isCorrect) score++;
+
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.remove('answered');
+                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+
+                const item = document.createElement('div');
+                item.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                item.innerHTML = `<span>Q${i}: ${userAnswer || 'Not Answered'}</span><span>${isCorrect ? '✔ Correct' : '✖ Incorrect'}</span>`;
+                resultsDetails.appendChild(item);
+            }
+
+            const total = Q_END - Q_START + 1;
+            document.getElementById('results-score').textContent = score;
+            document.getElementById('results-percent').textContent = Math.round((score / total) * 100);
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function closeResultsModal() {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        // HIGHLIGHT & NOTE
+        function initializeContextMenu() {
+            const panels = [passagePanel, questionsPanel];
+
+            document.addEventListener('selectionchange', () => {
+                const sel = window.getSelection();
+                if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+                    const range = sel.getRangeAt(0);
+                    if (panels.some(p => p.contains(range.commonAncestorContainer))) {
+                        selectedRange = range;
+                    }
+                }
+            });
+
+            const showMenu = (e) => {
+                const target = e.target;
+                const onHL = target.closest('.highlight, .comment-highlight');
+                const hasSelection = selectedRange && selectedRange.toString().trim().length > 0;
+                let show = false;
+                if (onHL) {
+                    document.getElementById('menu-highlight').style.display = 'none';
+                    document.getElementById('menu-note').style.display = 'none';
+                    document.getElementById('menu-clear').style.display = 'block';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    contextMenu.targetElementForClear = onHL;
+                    show = true;
+                } else if (hasSelection && panels.some(p => p.contains(selectedRange.commonAncestorContainer))) {
+                    document.getElementById('menu-highlight').style.display = 'flex';
+                    document.getElementById('menu-note').style.display = 'flex';
+                    document.getElementById('menu-clear').style.display = 'none';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    show = true;
+                }
+                if (show) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    const mh = contextMenu.offsetHeight, mw = contextMenu.offsetWidth;
+                    let left = e.pageX, top = e.pageY - mh - 5;
+                    if (left + mw > window.innerWidth) left = window.innerWidth - mw - 5;
+                    if (top < 0) top = e.pageY + 5;
+                    contextMenu.style.left = `${left}px`;
+                    contextMenu.style.top = `${top}px`;
+                }
+            };
+
+            panels.forEach(p => p.addEventListener('contextmenu', showMenu));
+            document.addEventListener('click', (e) => {
+                if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) closeContextMenu();
+            });
+        }
+
+        function closeContextMenu() {
+            contextMenu.style.display = 'none';
+            selectedRange = null;
+        }
+
+        function unwrapElement(el) {
+            const parent = el.parentNode;
+            if (!parent) return;
+            while (el.firstChild) parent.insertBefore(el.firstChild, el);
+            parent.removeChild(el);
+            parent.normalize();
+        }
+
+        window.highlightText = () => {
+            if (selectedRange && !selectedRange.collapsed) {
+                const selectedContent = selectedRange.extractContents();
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                span.appendChild(selectedContent);
+                selectedRange.insertNode(span);
+            }
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.addNote = () => {
+            const note = prompt('Enter your note:');
+            if (!note || !selectedRange || selectedRange.collapsed) {
+                closeContextMenu();
+                window.getSelection().removeAllRanges();
+                return;
+            }
+            const span = document.createElement('span');
+            span.className = 'comment-highlight';
+            const tooltip = document.createElement('span');
+            tooltip.className = 'comment-tooltip';
+            tooltip.textContent = note;
+            span.appendChild(selectedRange.extractContents());
+            span.appendChild(tooltip);
+            selectedRange.insertNode(span);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearHighlight = () => {
+            const el = contextMenu.targetElementForClear;
+            if (el) unwrapElement(el);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearAllHighlights = () => {
+            document.querySelectorAll('.highlight, .comment-highlight').forEach(unwrapElement);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        // RESIZER
+        function initResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = passagePanel.offsetWidth;
+            const doDrag = (e) => {
+                const nw = startWidth + e.clientX - startX;
+                if (nw > 200 && (document.body.clientWidth - nw - resizer.offsetWidth) > 200) {
+                    passagePanel.style.flex = `0 0 ${nw}px`;
+                }
+            };
+            const stopDrag = () => {
+                window.removeEventListener('mousemove', doDrag);
+                window.removeEventListener('mouseup', stopDrag);
+            };
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', stopDrag);
+        }
+
+        // GOTO WIDGET
+        document.getElementById('goto-btn').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('goto-input').value);
+            if (val >= Q_START && val <= Q_END) goToQuestion(val);
+        });
+        document.getElementById('goto-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('goto-btn').click();
+        });
+
+        window.nextQuestion = nextQuestion;
+        window.previousQuestion = previousQuestion;
+        window.goToQuestion = goToQuestion;
+        window.closeResultsModal = closeResultsModal;
+
+        function initialize() {
+            buildSubQuestions();
+            startTimer();
+            updateAllIndicators();
+            updateNavArrows();
+            resizer.addEventListener('mousedown', initResize);
+            initializeContextMenu();
+            document.body.addEventListener('input', updateAllIndicators);
+            document.body.addEventListener('change', updateAllIndicators);
+            deliverButton.addEventListener('click', checkAnswers);
+            timerToggleButton.addEventListener('click', toggleTimer);
+            timerResetButton.addEventListener('click', resetTimer);
+        }
+
+        /* ====================================================================
+           Student-info gate + Google Form submission
+           ==================================================================== */
+        const GOOGLE_FORM = {
+            formId: "1FAIpQLSdM1KG5ZLCeR1g-N75gz4Bfkh2ZRdr68DH-JQeXrpe4FHFhzQ",
+            fields: {
+                name:    "entry.1659617387",
+                class:   "entry.1909398272",
+                answers: "entry.1624980818",
+                score:   "entry.1214530813",
+            },
+        };
+
+        const student = { name: "", class: "" };
+
+        // Gate elements
+        const gateOverlay = document.getElementById("gate-overlay");
+        const gateName    = document.getElementById("gate-name");
+        const gateClass   = document.getElementById("gate-class");
+        const gateError   = document.getElementById("gate-error");
+        const gateStart   = document.getElementById("gate-start");
+
+        function startPractice() {
+            const nameVal  = gateName.value.trim();
+            const classVal = gateClass.value.trim();
+            gateName.classList.toggle("invalid", !nameVal);
+            gateClass.classList.toggle("invalid", !classVal);
+            if (!nameVal || !classVal) {
+                gateError.textContent = "Please enter both your name and your class.";
+                (nameVal ? gateClass : gateName).focus();
+                return;
+            }
+            student.name  = nameVal;
+            student.class = classVal;
+            gateError.textContent = "";
+            gateOverlay.style.display = "none";
+
+            // Show identity badge in the header
+            const testInfo = document.querySelector(".test-info");
+            if (testInfo) {
+                const tag = document.createElement("span");
+                tag.className = "student-tag";
+                tag.innerHTML = "Student · <b></b> · Class · <b></b>";
+                tag.querySelectorAll("b")[0].textContent = student.name;
+                tag.querySelectorAll("b")[1].textContent = student.class;
+                testInfo.appendChild(tag);
+            }
+
+            // Now the page is actually starting — initialize and start the timer.
+            initialize();
+        }
+
+        gateStart.addEventListener("click", startPractice);
+        [gateName, gateClass].forEach(el => {
+            el.addEventListener("keydown", e => {
+                if (e.key === "Enter") { e.preventDefault(); startPractice(); }
+            });
+            el.addEventListener("input", () => {
+                el.classList.remove("invalid");
+                gateError.textContent = "";
+            });
+        });
+        setTimeout(() => gateName.focus(), 50);
+
+        // Build a transcript mirroring what the page itself shows in its results
+        // modal: "Q14: <user answer>  ✔/✖". Correct answers are NEVER included —
+        // the original checkAnswers() comment states they must not be revealed.
+        function collectAnswersTranscript() {
+            const lines = [];
+            for (let i = Q_START; i <= Q_END; i++) {
+                const accepted = correctAnswers[String(i)] || [];
+                const selectEl = document.querySelector(`select#q${i}`);
+                const textEl   = document.querySelector(`input[type="text"]#q${i}`);
+                const radioEl  = document.querySelector(`input[name="q${i}"]:checked`);
+                let userAnswer = "";
+                let isCorrect = false;
+                if (selectEl) {
+                    userAnswer = selectEl.value;
+                    isCorrect  = userAnswer !== "" && accepted.some(a => userAnswer.toUpperCase() === a.toUpperCase());
+                } else if (textEl) {
+                    userAnswer = textEl.value.trim();
+                    isCorrect  = accepted.some(a => userAnswer.toLowerCase() === a.toLowerCase());
+                } else if (radioEl) {
+                    userAnswer = radioEl.value;
+                    isCorrect  = accepted.includes(userAnswer);
+                }
+                const status = !userAnswer ? "·" : (isCorrect ? "✓" : "✕");
+                lines.push(`Q${String(i).padStart(2, "0")}. [${status}] ${userAnswer || "(not answered)"}`);
+            }
+            return lines.join("\n");
+        }
+
+        let hasSubmitted = false;
+        function submitToGoogleForm() {
+            if (hasSubmitted) return;
+            hasSubmitted = true;
+
+            const right = parseInt(document.getElementById("results-score").textContent, 10) || 0;
+            const total = Q_END - Q_START + 1;
+            const url = `https://docs.google.com/forms/d/e/${GOOGLE_FORM.formId}/formResponse`;
+            const payload = {
+                [GOOGLE_FORM.fields.name]:    student.name,
+                [GOOGLE_FORM.fields.class]:   student.class,
+                [GOOGLE_FORM.fields.answers]: collectAnswersTranscript(),
+                [GOOGLE_FORM.fields.score]:   `${right} / ${total}`,
+            };
+
+            // Hidden-iframe form POST: the most reliable way to write to Google Forms
+            // from a webpage. The response loads into the invisible iframe, bypassing CORS.
+            let iframe = document.getElementById("gf-sink");
+            if (!iframe) {
+                iframe = document.createElement("iframe");
+                iframe.name = "gf-sink"; iframe.id = "gf-sink";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+            }
+            const form = document.createElement("form");
+            form.action = url; form.method = "POST"; form.target = "gf-sink";
+            form.style.display = "none";
+            Object.entries(payload).forEach(([k, v]) => {
+                const inp = document.createElement("input");
+                inp.type = "hidden"; inp.name = k; inp.value = v;
+                form.appendChild(inp);
+            });
+            document.body.appendChild(form);
+
+            let settled = false;
+            const onLoad = () => {
+                if (settled) return;
+                settled = true;
+                iframe.removeEventListener("load", onLoad);
+                setTimeout(() => form.remove(), 100);
+            };
+            iframe.addEventListener("load", onLoad);
+            form.submit();
+            setTimeout(() => {
+                if (settled) return;
+                settled = true;
+                iframe.removeEventListener("load", onLoad);
+                hasSubmitted = false; // allow retry
+                try { form.remove(); } catch (_) {}
+            }, 8000);
+        }
+
+        // Hook into the existing flow by observing #results-modal becoming visible.
+        // checkAnswers() removes the "hidden" class from #results-modal on line 532,
+        // and closeResultsModal() re-adds it. After the modal opens we wait one frame
+        // for #results-score to be populated, then send.
+        const resultsModal = document.getElementById("results-modal");
+        const resultsObserver = new MutationObserver(() => {
+            if (!resultsModal.classList.contains("hidden") && !hasSubmitted) {
+                requestAnimationFrame(() => submitToGoogleForm());
+            }
+        });
+        resultsObserver.observe(resultsModal, { attributes: true, attributeFilter: ["class"] });
+
+        // Note: initialize() is now called by startPractice() once the gate closes,
+        // not here — so the 20-minute timer doesn't start while the student is
+        // entering their name and class.
+    });
+    </script>
+</body>
+</html>
