@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@600&display=swap" rel="stylesheet">
+    <title>IELTS Reading Practice — Passage 3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #ffffff; line-height: 1.4; font-size: 16px; }
+        .header { background-color: #ffffff; padding: 12px 20px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
+        .test-info { display: flex; align-items: center; gap: 30px; font-size: 14px; color: #333; }
+        .header-icons { display: flex; gap: 10px; align-items: center; }
+        .main-container { margin-top: 60px; display: flex; flex-direction: column; background: #ffffff; height: calc(100vh - 60px); }
+        .panels-container { display: flex; flex: 1; overflow: hidden; }
+        .passage-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; }
+        .reading-passage h4 { font-family: 'Merriweather', serif; font-size: 22px; font-weight: 600; color: #2c3e50; line-height: 1.4; margin-bottom: 8px; text-align: center; border-bottom: 2px solid #4a90e2; padding-bottom: 5px; }
+        .reading-passage .subtitle { text-align: center; font-style: italic; color: #555; margin-bottom: 20px; font-size: 16px; }
+        .reading-passage p { margin-bottom: 1.2em; text-align: justify; }
+        .questions-panel { flex: 1; padding: 20px 20px 100px; overflow-y: auto; min-width: 200px; border-left: 1px solid #e0e0e0; }
+        .resizer { width: 10px; cursor: col-resize; background-color: #f0f0f0; background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="30" viewBox="0 0 10 30"><path d="M4 11h2v2H4zM4 15h2v2H4zM4 19h2v2H4z" fill="%23888"/></svg>'); background-repeat: no-repeat; background-position: center; flex-shrink: 0; flex-grow: 0; }
+        .nav-arrows { position: fixed; bottom: 100px; right: 20px; display: flex; gap: 5px; z-index: 101; }
+        .nav-arrow { width: 50px; height: 50px; background: #333; color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; }
+        .nav-arrow:hover { background: #555; }
+        .nav-arrow:disabled { background: #ccc; cursor: not-allowed; }
+        .nav-row { position: fixed; bottom: 0; left: 0; right: 0; background: #ffffff; padding: 0; display: flex; align-items: center; height: 80px; z-index: 100; border-top: 1px solid #e0e0e0; }
+        .footer__questionWrapper___1tZ46 { display: flex; align-items: center; margin-right: 20px; padding-left: 10px; }
+        .footer__questionNo___3WNct { background: none; border: none; padding: 10px 15px; font-size: 16px; font-weight: 600; color: #333; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .footer__questionNo___3WNct:hover { background-color: #f8f9fa; }
+        .section-prefix { font-size: 16px; }
+        .sectionNr { font-size: 16px; font-weight: bold; }
+        .attemptedCount { font-size: 14px; color: #666; margin-left: 5px; font-weight: 400; }
+        .footer__subquestionWrapper___9GgoP { display: flex; gap: 2px; margin-left: 10px; flex-wrap: wrap; max-width: 60vw; }
+        .subQuestion { width: 32px; height: 32px; border: 1px solid #ccc; background: white; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border-radius: 2px; }
+        .subQuestion.answered { background-color: #e9ecef; border-color: #ddd; }
+        .subQuestion.correct { background-color: #28a745; color: white; border-color: #28a745; }
+        .subQuestion.incorrect { background-color: #dc3545; color: white; border-color: #dc3545; }
+        .subQuestion:hover { background-color: #f0f0f0; border-color: #999; }
+        .subQuestion.active { background-color: #4a90e2; color: white; border-color: #4a90e2; }
+        .deliver-btn-wrapper { margin-left: auto; padding-right: 20px; }
+        #deliver-button { background: #333; color: white; border: none; padding: 10px 20px; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 8px; }
+        #deliver-button:hover { background: #555; }
+        #deliver-button:disabled { background: #aaa; cursor: not-allowed; }
+        .context-menu { position: fixed; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; display: none; min-width: 140px; }
+        .context-menu-item { padding: 12px 16px; cursor: pointer; font-size: 16px; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s; display: flex; align-items: center; gap: 8px; }
+        .context-menu-item:hover { background-color: #f8f9fa; }
+        .context-menu-item:last-child { border-bottom: none; }
+        .highlight { background-color: #ffff00; }
+        .comment-highlight { background-color: #90EE90; position: relative; cursor: help; }
+        .comment-tooltip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 8px 12px; border-radius: 4px; font-size: 14px; white-space: nowrap; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .comment-highlight:hover .comment-tooltip { opacity: 1; }
+        .question { margin-bottom: 40px; }
+        .question p { margin-bottom: 10px; }
+        .question-prompt { margin-bottom: 20px; }
+        .question ul { list-style: none; padding-left: 0; }
+        .question ul li { margin-bottom: 5px; }
+        .answer-input { border: 1px solid #888; border-radius: 4px; background-color: #fff; padding: 2px 5px; font-size: 16px; text-align: center; margin-right: 4px; margin-left: 4px; transition: border-color 0.3s, box-shadow 0.3s; height: 28px; }
+        .answer-input.active-input { border-color: #4a90e2; box-shadow: 0 0 3px 1px rgba(74,144,226,0.5); }
+        .questions-container { width: 100%; }
+        .part-header { background-color: #f1f2ec; padding: 15px 20px; border: 1px solid #e0e0e0; text-align: left; margin: 10px 20px; border-radius: 5px; }
+        .part-header p { margin: 0; }
+        .part-header p:first-child { margin-bottom: 5px; }
+        .timer-container { display: flex; position: relative; cursor: default; color: #333; font-size: 16px; font-weight: 500; align-items: center; }
+        .timer-controls { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
+        .timer-controls button { background: #f0f0f0; border: 1px solid #ccc; border-radius: 50%; padding: 0; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
+        .timer-controls button:hover { background: #e0e0e0; }
+        .timer-controls button svg { width: 20px; height: 20px; fill: #333; }
+        .hidden { display: none !important; }
+        .tf-question { margin-bottom: 25px; padding: 10px 0px; border-radius: 4px; transition: background-color 0.3s; }
+        .tf-question-line { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .tf-question-number { font-weight: bold; min-width: 25px; color: #4a90e2; }
+        .tf-question-text { flex: 1; }
+        .tf-options { display: flex; gap: 15px; flex-wrap: wrap; margin-left: 35px; }
+        .tf-option { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 15px; }
+        .tf-option input { accent-color: #4a90e2; transform: scale(1.2); }
+        .tf-question.correct { background-color: #e9f7ef; border-left: 4px solid #28a745; padding-left: 6px; }
+        .tf-question.incorrect { background-color: #f8d7da; border-left: 4px solid #dc3545; padding-left: 6px; }
+        .multi-choice-question { margin-bottom: 20px; padding: 10px; border-radius: 4px; border: 3px solid transparent; transition: border-color 0.3s, background-color 0.3s; }
+        .multi-choice-option { margin-bottom: 10px; padding: 8px; border-radius: 4px; transition: background-color 0.3s; }
+        .multi-choice-option label { display: flex; align-items: flex-start; cursor: pointer; font-size: 16px; gap: 12px; }
+        .multi-choice-option input[type="radio"] { margin-top: 3px; transform: scale(1.3); accent-color: #4a90e2; }
+        .multi-choice-option.correct { background-color: #e9f7ef; }
+        .multi-choice-option.incorrect { background-color: #f8d7da; }
+        .multi-choice-question.correct { border-color: #28a745; }
+        .multi-choice-question.incorrect { border-color: #dc3545; }
+        .matching-form-container { display: flex; flex-direction: column; gap: 10px; }
+        .matching-form-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .matching-form-label { flex: 1; font-size: 15px; }
+        .matching-form-row.correct { background-color: #e9f7ef; padding: 8px; border-radius: 4px; }
+        .matching-form-row.incorrect { background-color: #f8d7da; padding: 8px; border-radius: 4px; }
+        .matching-form-row select.answer-input { width: 80px; text-align: center; }
+        .options-box { background-color: #f9f9f9; border: 1px solid #ddd; padding: 12px 16px; border-radius: 5px; margin: 12px 0 20px; }
+        .options-box p { margin: 6px 0; font-size: 15px; display: flex; gap: 8px; }
+        .options-box .rn { font-weight: bold; min-width: 22px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .modal-content { background: white; border-radius: 8px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; }
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #333; }
+        .results-summary { font-size: 18px; margin-bottom: 20px; }
+        .results-summary p { margin-bottom: 8px; }
+        .results-details-container { display: flex; flex-direction: column; gap: 8px; }
+        .result-item { display: flex; justify-content: space-between; padding: 8px 12px; border-radius: 4px; font-size: 15px; }
+        .result-item.correct { background: #e9f7ef; }
+        .result-item.incorrect { background: #f8d7da; }
+        #goto-widget { display: flex; align-items: center; gap: 5px; }
+        #goto-input { width: 80px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 4px; }
+        #goto-btn { padding: 4px 10px; border: 1px solid #ccc; background-color: #f0f0f0; border-radius: 4px; cursor: pointer; }
+
+        /* === Student-info gate (shown before the test starts) === */
+        .gate-overlay {
+            position: fixed; inset: 0;
+            background: rgba(20,30,45,0.55);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; padding: 20px;
+        }
+        .gate-card {
+            background: #ffffff; border: 1px solid #e0e0e0;
+            border-radius: 6px; padding: 32px 32px 28px;
+            max-width: 440px; width: 100%;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+            font-family: Arial, sans-serif;
+        }
+        .gate-card .gate-eyebrow {
+            font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+            color: #4a90e2; margin: 0 0 8px; font-weight: 700;
+        }
+        .gate-card h2 {
+            font-family: 'Merriweather', serif; font-weight: 600;
+            font-size: 24px; margin: 0 0 8px; color: #2c3e50;
+        }
+        .gate-card .gate-sub { font-size: 14px; color: #555; margin: 0 0 22px; }
+        .gate-field { margin-bottom: 14px; }
+        .gate-field label {
+            display: block; font-size: 12px; letter-spacing: 0.05em;
+            text-transform: uppercase; color: #555; margin-bottom: 6px; font-weight: 600;
+        }
+        .gate-field label .req { color: #dc3545; margin-left: 2px; }
+        .gate-field input {
+            width: 100%; font: inherit; font-size: 15px; color: #333;
+            background: #fff; border: 1px solid #ccc; border-radius: 4px;
+            padding: 9px 12px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .gate-field input:focus {
+            border-color: #4a90e2; box-shadow: 0 0 0 3px rgba(74,144,226,0.18);
+        }
+        .gate-field input.invalid {
+            border-color: #dc3545; background: #fbeceb;
+        }
+        .gate-error {
+            font-size: 13px; color: #dc3545; margin: 0 0 12px; min-height: 18px;
+        }
+        .gate-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+        .gate-start-btn {
+            background: #333; color: #fff; border: none;
+            padding: 10px 20px; font-size: 15px; font-weight: 600;
+            cursor: pointer; border-radius: 4px;
+            transition: background .15s;
+        }
+        .gate-start-btn:hover { background: #555; }
+        /* Identity badge added to the header after the gate closes */
+        .student-tag {
+            font-size: 13px; color: #666; margin-left: 24px;
+            padding: 4px 10px; border: 1px solid #e0e0e0; border-radius: 4px;
+            background: #fafafa; white-space: nowrap;
+        }
+        .student-tag b { color: #333; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- Student-info gate: must enter Name + Class before starting the test -->
+    <div class="gate-overlay" id="gate-overlay" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+        <div class="gate-card">
+            <p class="gate-eyebrow">Before you begin</p>
+            <h2 id="gate-title">Student information</h2>
+            <p class="gate-sub">Please enter your name and class. The 20-minute timer will start once you begin.</p>
+            <div class="gate-field">
+                <label for="gate-name">Name<span class="req">*</span></label>
+                <input type="text" id="gate-name" autocomplete="name" spellcheck="false" />
+            </div>
+            <div class="gate-field">
+                <label for="gate-class">Class<span class="req">*</span></label>
+                <input type="text" id="gate-class" autocomplete="off" spellcheck="false" />
+            </div>
+            <p class="gate-error" id="gate-error"></p>
+            <div class="gate-actions">
+                <button class="gate-start-btn" id="gate-start" type="button">Start practice</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="test-info">
+            <span><strong>IELTS Academic Reading — Passage 3</strong></span>
+            <div class="timer-container">
+                <span>⏱</span>&nbsp;<span class="timer-display">20:00</span>
+                <div class="timer-controls">
+                    <button id="timer-toggle-btn" title="Pause/Resume">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    </button>
+                    <button id="timer-reset-btn" title="Reset Timer">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="header-icons">
+            <div id="goto-widget">
+                <label for="goto-input" style="font-size:14px;">Go to Q:</label>
+                <input type="number" id="goto-input" min="27" max="40" placeholder="27-40">
+                <button id="goto-btn">Go</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Part Header -->
+    <div class="main-container" id="main-container">
+        <div id="passage-header-container">
+            <div id="part-header-3" class="part-header">
+                <p><strong>Part 3</strong></p>
+                <p>You should spend about 20 minutes on Questions 27–40, which are based on Reading Passage 3 below.</p>
+            </div>
+        </div>
+
+        <div class="panels-container">
+            <!-- PASSAGE PANEL -->
+            <div class="passage-panel" id="passage-panel">
+                <div id="passage-text-3" class="reading-passage">
+                    <h4>Rebranding art museums</h4>
+                    <p class="subtitle">A study of the reopened National Gallery of Victoria</p>
+                    <p>As anyone with even a passing interest in cultural institutions will know, art museums are adapting to keep up with changes in society. Do any of these newly developed spaces indicate a fundamental shift in the ways we engage with art at the beginning of the twenty-first century? The answer is a qualified Yes - and also, it must be said, No. A clear sense of this can be gained by considering the 2003 redevelopment of the National Gallery of Victoria (NGV) in Melbourne, Australia's second-largest city, in the light of the aspirations embodied in the original building that served as its template.</p>
+                    <p>The first building was considered a thoroughly modern museum when it opened to the public in 1968. We should not forget that it was not all bad; there were certainly innovative aspects that one must credit to the vision and insight of the architect, Roy Grounds. For one thing, the 1968 building signaled a strong sense of engagement both in its design and layout.</p>
+                    <p>It was set apart from traditional notions of art museums, and over the years, this idea has been questioned and superseded by the growing impetus towards an alternative model of the museum - one that engages the public in more open-ended ways. The layout of its galleries was designed to facilitate the rapid and efficient circulation of visitors. It also contained a series of greatly expanded temporary exhibition galleries and a vast Great Hall, which represented an unprecedented emphasis on the ancillary roles of corporate functions and public performances in the contemporary museum.</p>
+                    <p>This last feature might have seemed excessive to some, yet how wise it has proven over the years as museums have come to place increasing emphasis on corporate sponsorship and the need to generate additional funds via room hire. Furthermore, the Great Hall has, for forty years, provided an area for children to roam at large before being escorted through the much less spatially accommodating galleries themselves. As an unintimidating introduction to the lifelong rigors of visiting art museums, its impact on attendance cannot be overestimated.</p>
+                    <p>At the same time, other aspects of the 1968 NGV have not withstood the test of time so well. Foremost among these are the huge expanse of the exterior's windowless wall and the surrounding moat, which creates a rather unwelcoming expression of the institution.</p>
+                    <p>With these considerations in mind, Mario Bellini's redeveloped NGV opened in 2003, and his design reflects what the new, improved, twenty-first-century global museum feels it should be emphasizing to its visitors. Here, the institution's energies are focused not so much on the technical subtleties of how to design the galleries themselves, but rather on presenting to the public a spectacular image of the museum itself as a welcoming yet efficient facilitator of social interaction, popular entertainment, and public knowledge.</p>
+                    <p>All of this is certainly impressive, but where has the art gone? We are not allowed to see the exhibitions until we have completed the necessary inductions. We are greeted by a hugely expanded cloakroom, screening off our vision to the right, followed by a large visitor information office leading to the ticket booths. Above us is the café, and to our left, we cannot escape the NGV shop, set alongside the exit.</p>
+                    <p>And what of the redesigned galleries themselves? In fact, they represent a wonderfully elegant reframing of the permanent collections in ways that should offer first-time visitors and seasoned members alike many new avenues for engagement in the years to come. But herein lies the conundrum posed by the NGV renovation and by the global sweep of new museum projects more generally. The mainstay elements of a permanent collection can become all too easily lost in the increased prominence that these rebranding exercises tend to place on the more glamorously spectacular aspects of the institution itself.</p>
+                    <p>At its most extreme, this results in the construction of new buildings that supplant the artworks inside them, becoming the major attractions themselves.</p>
+                    <p>These challenges are most keenly felt in the area of the temporary exhibition. Entrance to the NGV permanent collection is now free, so the NGV needs something to keep the paying public coming back. The answer lies in the international 'blockbuster' exhibition.</p>
+                    <p>For example, The Impressionists netted a total of 380,000 visitors, making it one of the most popular exhibitions in Australian history. There has also been, it needs to be said, a commendable attempt to leaven the international masterpieces with selected highlights from the permanent collection. Overall, though, the prevalence of these 'rental' blockbusters cannot help but introduce a certain 'off-the-rack' feeling to the institution's exhibition program.</p>
+                    <p>More importantly, they narrow the options for other worthy but less glamorous projects, and they take energy away from the curators' potential to do further work on and around the permanent collection itself.</p>
+                    <p>Yet the show must go on, and shows can't exist without the public. Even the most adroit organization, as the NGV assuredly is, needs to be able to juggle numerous, often conflicting priorities: The need to advance scholarship versus the imperative of access. The need to introduce audiences to new areas versus the necessity of luring them in with instant brand recognition. Nobody said it was going to be easy, and the effect of too much innovation in museums can be disastrous.</p>
+                </div>
+            </div>
+
+            <div class="resizer" id="resizer"></div>
+
+            <!-- QUESTIONS PANEL -->
+            <div class="questions-panel" id="questions-panel">
+                <div id="questions-3" class="question-set">
+                    <div class="questions-container">
+
+                        <!-- Q27-30: Multiple Choice -->
+                        <div class="question" data-q-start="27" data-q-end="30">
+                            <div class="question-prompt">
+                                <p><strong>Questions 27–30</strong></p>
+                                <p>Choose the correct letter, <strong>A, B, C</strong> or <strong>D</strong>.</p>
+                                <p>Write the correct letter in boxes 27–30 on your answer sheet.</p>
+                            </div>
+                            <div class="multi-choice-question" data-q-start="27" data-q-end="27">
+                                <div class="multi-choice-options">
+                                    <p><strong>27&nbsp;&nbsp;What is the writer doing in paragraph 1?</strong></p>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q27" value="A"> <span><strong>A</strong>&nbsp;&nbsp;Comparing the old NGV with the new NGV</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q27" value="B"> <span><strong>B</strong>&nbsp;&nbsp;Describing the role of art museums in Australian culture</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q27" value="C"> <span><strong>C</strong>&nbsp;&nbsp;Considering the influence of gallery design on art appreciation</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q27" value="D"> <span><strong>D</strong>&nbsp;&nbsp;Suggesting there has been little recent change in gallery design</span></label></div>
+                                </div>
+                            </div>
+                            <div class="multi-choice-question" data-q-start="28" data-q-end="28">
+                                <div class="multi-choice-options">
+                                    <p><strong>28&nbsp;&nbsp;The writer criticises the old NGV because</strong></p>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q28" value="A"> <span><strong>A</strong>&nbsp;&nbsp;the permanent collection was poorly displayed.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q28" value="B"> <span><strong>B</strong>&nbsp;&nbsp;the building tended to make art seem remote.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q28" value="C"> <span><strong>C</strong>&nbsp;&nbsp;Asian and Pacific art was neglected.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q28" value="D"> <span><strong>D</strong>&nbsp;&nbsp;the foyer resembled a shop.</span></label></div>
+                                </div>
+                            </div>
+                            <div class="multi-choice-question" data-q-start="29" data-q-end="29">
+                                <div class="multi-choice-options">
+                                    <p><strong>29&nbsp;&nbsp;What does the writer notice about the new NGV?</strong></p>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q29" value="A"> <span><strong>A</strong>&nbsp;&nbsp;He thinks the ticket booths are well positioned.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q29" value="B"> <span><strong>B</strong>&nbsp;&nbsp;He is upset that he is made to move so quickly.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q29" value="C"> <span><strong>C</strong>&nbsp;&nbsp;He is frustrated because the art is obscured by the entrance.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q29" value="D"> <span><strong>D</strong>&nbsp;&nbsp;He thinks the redevelopment fails to keep up with international trends.</span></label></div>
+                                </div>
+                            </div>
+                            <div class="multi-choice-question" data-q-start="30" data-q-end="30">
+                                <div class="multi-choice-options">
+                                    <p><strong>30&nbsp;&nbsp;The writer argues that rental 'blockbuster' exhibitions</strong></p>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q30" value="A"> <span><strong>A</strong>&nbsp;&nbsp;should be cheaper.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q30" value="B"> <span><strong>B</strong>&nbsp;&nbsp;are a financial necessity.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q30" value="C"> <span><strong>C</strong>&nbsp;&nbsp;should be increased in number.</span></label></div>
+                                    <div class="multi-choice-option"><label><input type="radio" name="q30" value="D"> <span><strong>D</strong>&nbsp;&nbsp;allow the museum to present an original programme.</span></label></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Q31-35: YES/NO/NOT GIVEN -->
+                        <div class="question" data-q-start="31" data-q-end="35">
+                            <div class="question-prompt">
+                                <p><strong>Questions 31–35</strong></p>
+                                <p>Do the following statements agree with the claims of the writer in Reading Passage 3?</p>
+                                <p>In boxes 31–35 on your answer sheet, write:</p>
+                                <ul style="list-style:none;padding-left:0;">
+                                    <li><strong>YES</strong> if the statement agrees with the claims of the writer</li>
+                                    <li><strong>NO</strong> if the statement contradicts the claims of the writer</li>
+                                    <li><strong>NOT GIVEN</strong> if it is impossible to say what the writer thinks about this</li>
+                                </ul>
+                            </div>
+                            <div class="tf-question" data-q-start="31" data-q-end="31">
+                                <div class="tf-question-line"><span class="tf-question-number">31</span><span class="tf-question-text">Roy Grounds's design failed to recognise the importance of functions and performances in museums.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q31" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q31" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q31" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="32" data-q-end="32">
+                                <div class="tf-question-line"><span class="tf-question-number">32</span><span class="tf-question-text">Mario Bellini's new NGV rejects international museum design trends.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q32" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q32" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q32" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="33" data-q-end="33">
+                                <div class="tf-question-line"><span class="tf-question-number">33</span><span class="tf-question-text">Mario Bellini's work on subsequent museum projects has been less successful than that on the NGV.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q33" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q33" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q33" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="34" data-q-end="34">
+                                <div class="tf-question-line"><span class="tf-question-number">34</span><span class="tf-question-text">The NGV monitors the number of first-time visitors to permanent collections.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q34" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q34" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q34" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                            <div class="tf-question" data-q-start="35" data-q-end="35">
+                                <div class="tf-question-line"><span class="tf-question-number">35</span><span class="tf-question-text">Too much change may have negative impacts on museums.</span></div>
+                                <div class="tf-options"><label class="tf-option"><input type="radio" name="q35" value="YES"> YES</label><label class="tf-option"><input type="radio" name="q35" value="NO"> NO</label><label class="tf-option"><input type="radio" name="q35" value="NOT GIVEN"> NOT GIVEN</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Q36-40: Sentence Endings -->
+                        <div class="question" data-q-start="36" data-q-end="40">
+                            <div class="question-prompt">
+                                <p><strong>Questions 36–40</strong></p>
+                                <p>Complete each sentence with the correct ending <strong>A–G</strong>, below.</p>
+                                <p>Write the correct letter, <strong>A–G</strong>, in boxes 36–40 on your answer sheet.</p>
+                            </div>
+                            <div class="options-box">
+                                <p><span class="rn">A</span><span>The museum programme will lose its individuality.</span></p>
+                                <p><span class="rn">B</span><span>The museum will lose credibility.</span></p>
+                                <p><span class="rn">C</span><span>The art loses its importance.</span></p>
+                                <p><span class="rn">D</span><span>It will have to balance opposing demands.</span></p>
+                                <p><span class="rn">E</span><span>This will encourage museum visitors in the future.</span></p>
+                                <p><span class="rn">F</span><span>It will have the capability of increasing revenue.</span></p>
+                                <p><span class="rn">G</span><span>The architect's reputation might suffer.</span></p>
+                            </div>
+                            <div class="matching-form-container">
+                                <div class="matching-form-row">
+                                    <label for="q36" class="matching-form-label"><strong>36</strong>&nbsp;&nbsp;If a large space is available in the museum,</label>
+                                    <select class="answer-input" id="q36"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q37" class="matching-form-label"><strong>37</strong>&nbsp;&nbsp;If children are allowed to move freely in parts of the gallery,</label>
+                                    <select class="answer-input" id="q37"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q38" class="matching-form-label"><strong>38</strong>&nbsp;&nbsp;If too much emphasis is placed on the museum building itself,</label>
+                                    <select class="answer-input" id="q38"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q39" class="matching-form-label"><strong>39</strong>&nbsp;&nbsp;If there is an over-reliance on blockbuster exhibitions,</label>
+                                    <select class="answer-input" id="q39"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                                </div>
+                                <div class="matching-form-row">
+                                    <label for="q40" class="matching-form-label"><strong>40</strong>&nbsp;&nbsp;If the NGV wants to continue to be successful,</label>
+                                    <select class="answer-input" id="q40"><option value=""></option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" id="prev-btn" onclick="previousQuestion()">&#8592;</button>
+        <button class="nav-arrow" id="next-btn" onclick="nextQuestion()">&#8594;</button>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="nav-row" id="nav-row">
+        <div class="footer__questionWrapper___1tZ46 selected" id="part-btn-3">
+            <button class="footer__questionNo___3WNct">
+                <span class="section-prefix">Part </span><span class="sectionNr">3</span>
+                <span class="attemptedCount">0 of 14</span>
+            </button>
+            <div class="footer__subquestionWrapper___9GgoP" id="sq-part-3"></div>
+        </div>
+        <div class="deliver-btn-wrapper">
+            <button id="deliver-button">
+                <span>Check Answers</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu">
+        <div id="menu-highlight" class="context-menu-item" onclick="highlightText()">Highlight</div>
+        <div id="menu-note" class="context-menu-item" onclick="addNote()">Note</div>
+        <div id="menu-clear" class="context-menu-item" onclick="clearHighlight()">Clear</div>
+        <div id="menu-clear-all" class="context-menu-item" onclick="clearAllHighlights()">Clear All</div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeResultsModal()">&times;</button>
+            <h2>Results — Passage 3</h2>
+            <div class="results-summary">
+                <p>Score: <span id="results-score"></span> / 14</p>
+                <p>Percentage: <span id="results-percent"></span>%</p>
+            </div>
+            <div id="results-details" class="results-details-container"></div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // STATE
+        let currentQuestion = 27;
+        let selectedRange = null;
+        let timeInSeconds = 1200; // 20 minutes
+        let timerInterval;
+
+        const Q_START = 27;
+        const Q_END = 40;
+
+        const timerDisplay = document.querySelector('.timer-display');
+        const timerToggleButton = document.getElementById('timer-toggle-btn');
+        const timerResetButton = document.getElementById('timer-reset-btn');
+        const deliverButton = document.getElementById('deliver-button');
+        const resizer = document.getElementById('resizer');
+        const passagePanel = document.getElementById('passage-panel');
+        const questionsPanel = document.getElementById('questions-panel');
+        const contextMenu = document.getElementById('contextMenu');
+
+        const playIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M8 5v14l11-7L8 5z"/></svg>';
+        const pauseIcon = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+
+        // ANSWERS — only show correct/incorrect, never reveal the answer
+        const correctAnswers = {
+            '27':['C'],'28':['B'],'29':['C'],'30':['B'],
+            '31':['NO'],'32':['NO'],'33':['NOT GIVEN'],'34':['NOT GIVEN'],'35':['YES'],
+            '36':['F'],'37':['E'],'38':['C'],'39':['A'],'40':['D']
+        };
+
+        function buildSubQuestions() {
+            const container = document.getElementById('sq-part-3');
+            container.innerHTML = '';
+            for (let i = Q_START; i <= Q_END; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'subQuestion';
+                btn.textContent = i;
+                btn.onclick = (ev) => { ev.stopPropagation(); goToQuestion(i); };
+                btn.id = `sq-btn-${i}`;
+                container.appendChild(btn);
+            }
+        }
+
+        function isQuestionAnswered(i) {
+            const sel = document.querySelector(`select#q${i}`);
+            if (sel) return sel.value !== '';
+            const radio = document.querySelector(`input[name="q${i}"]:checked`);
+            if (radio) return true;
+            return false;
+        }
+
+        function updateAllIndicators() {
+            let count = 0;
+            for (let i = Q_START; i <= Q_END; i++) {
+                if (isQuestionAnswered(i)) count++;
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.toggle('answered', isQuestionAnswered(i));
+                    btn.classList.toggle('active', i === currentQuestion);
+                }
+            }
+            const wrapper = document.getElementById('part-btn-3');
+            if (wrapper) {
+                const span = wrapper.querySelector('.attemptedCount');
+                if (span) span.textContent = `${count} of ${Q_END - Q_START + 1}`;
+            }
+        }
+
+        function goToQuestion(qNum) {
+            currentQuestion = qNum;
+            const targetMC = document.querySelector(`.multi-choice-question[data-q-start="${qNum}"]`);
+            const targetTF = document.querySelector(`.tf-question[data-q-start="${qNum}"]`);
+            const targetSel = document.getElementById(`q${qNum}`);
+            const target = targetMC || targetTF || targetSel;
+            if (target) {
+                const row = target.closest('.matching-form-row') || target;
+                const containerRect = questionsPanel.getBoundingClientRect();
+                const rowRect = row.getBoundingClientRect();
+                questionsPanel.scrollTop += rowRect.top - containerRect.top - 90;
+            }
+
+            document.querySelectorAll('.answer-input.active-input').forEach(el => el.classList.remove('active-input'));
+            const activeInput = document.getElementById(`q${qNum}`);
+            if (activeInput) activeInput.classList.add('active-input');
+
+            updateAllIndicators();
+            updateNavArrows();
+        }
+
+        function nextQuestion() { if (currentQuestion < Q_END) goToQuestion(currentQuestion + 1); }
+        function previousQuestion() { if (currentQuestion > Q_START) goToQuestion(currentQuestion - 1); }
+
+        function updateNavArrows() {
+            document.getElementById('prev-btn').disabled = currentQuestion <= Q_START;
+            document.getElementById('next-btn').disabled = currentQuestion >= Q_END;
+        }
+
+        // Timer
+        function updateTimerDisplay() {
+            const m = Math.floor(timeInSeconds / 60);
+            const s = timeInSeconds % 60;
+            timerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                updateTimerDisplay();
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "Time's up!";
+                }
+            }, 1000);
+            timerToggleButton.innerHTML = pauseIcon;
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            timerToggleButton.innerHTML = playIcon;
+        }
+
+        function toggleTimer() {
+            if (timerToggleButton.innerHTML.includes('M6 19h4V5H6v14z')) pauseTimer();
+            else startTimer();
+        }
+
+        function resetTimer() {
+            timeInSeconds = 1200;
+            updateTimerDisplay();
+            startTimer();
+        }
+
+        // CHECK ANSWERS — only show correct/incorrect, never reveal the answer
+        function checkAnswers() {
+            const allInputs = document.querySelectorAll('input, select, textarea');
+            allInputs.forEach(inp => inp.disabled = true);
+            deliverButton.disabled = true;
+            deliverButton.style.cursor = 'not-allowed';
+            clearInterval(timerInterval);
+
+            let score = 0;
+            const resultsDetails = document.getElementById('results-details');
+            resultsDetails.innerHTML = '';
+
+            document.querySelectorAll('.correct, .incorrect').forEach(el => {
+                el.classList.remove('correct', 'incorrect');
+            });
+
+            for (let i = Q_START; i <= Q_END; i++) {
+                const accepted = correctAnswers[String(i)] || [];
+                let userAnswer = '';
+                let isCorrect = false;
+
+                const selEl = document.querySelector(`select#q${i}`);
+                const radioEl = document.querySelector(`input[name="q${i}"]:checked`);
+
+                if (selEl) {
+                    userAnswer = selEl.value;
+                    isCorrect = accepted.includes(userAnswer);
+                    const row = selEl.closest('.matching-form-row');
+                    if (row) row.classList.add(isCorrect ? 'correct' : 'incorrect');
+                } else if (radioEl) {
+                    userAnswer = radioEl.value;
+                    isCorrect = accepted.includes(userAnswer);
+                    const tfQ = radioEl.closest('.tf-question');
+                    const mcQ = radioEl.closest('.multi-choice-question');
+                    if (tfQ) tfQ.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    if (mcQ) {
+                        mcQ.classList.add(isCorrect ? 'correct' : 'incorrect');
+                        radioEl.closest('.multi-choice-option').classList.add(isCorrect ? 'correct' : 'incorrect');
+                    }
+                }
+
+                if (isCorrect) score++;
+
+                const btn = document.getElementById(`sq-btn-${i}`);
+                if (btn) {
+                    btn.classList.remove('answered');
+                    btn.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+
+                const item = document.createElement('div');
+                item.className = `result-item ${isCorrect ? 'correct' : 'incorrect'}`;
+                item.innerHTML = `<span>Q${i}: ${userAnswer || 'Not Answered'}</span><span>${isCorrect ? '✔ Correct' : '✖ Incorrect'}</span>`;
+                resultsDetails.appendChild(item);
+            }
+
+            const total = Q_END - Q_START + 1;
+            document.getElementById('results-score').textContent = score;
+            document.getElementById('results-percent').textContent = Math.round((score / total) * 100);
+            document.getElementById('results-modal').classList.remove('hidden');
+        }
+
+        function closeResultsModal() {
+            document.getElementById('results-modal').classList.add('hidden');
+        }
+
+        // HIGHLIGHT & NOTE
+        function initializeContextMenu() {
+            const panels = [passagePanel, questionsPanel];
+
+            document.addEventListener('selectionchange', () => {
+                const sel = window.getSelection();
+                if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) {
+                    const range = sel.getRangeAt(0);
+                    if (panels.some(p => p.contains(range.commonAncestorContainer))) {
+                        selectedRange = range;
+                    }
+                }
+            });
+
+            const showMenu = (e) => {
+                const target = e.target;
+                const onHL = target.closest('.highlight, .comment-highlight');
+                const hasSelection = selectedRange && selectedRange.toString().trim().length > 0;
+                let show = false;
+                if (onHL) {
+                    document.getElementById('menu-highlight').style.display = 'none';
+                    document.getElementById('menu-note').style.display = 'none';
+                    document.getElementById('menu-clear').style.display = 'block';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    contextMenu.targetElementForClear = onHL;
+                    show = true;
+                } else if (hasSelection && panels.some(p => p.contains(selectedRange.commonAncestorContainer))) {
+                    document.getElementById('menu-highlight').style.display = 'flex';
+                    document.getElementById('menu-note').style.display = 'flex';
+                    document.getElementById('menu-clear').style.display = 'none';
+                    document.getElementById('menu-clear-all').style.display = 'block';
+                    show = true;
+                }
+                if (show) {
+                    e.preventDefault();
+                    contextMenu.style.display = 'block';
+                    const mh = contextMenu.offsetHeight, mw = contextMenu.offsetWidth;
+                    let left = e.pageX, top = e.pageY - mh - 5;
+                    if (left + mw > window.innerWidth) left = window.innerWidth - mw - 5;
+                    if (top < 0) top = e.pageY + 5;
+                    contextMenu.style.left = `${left}px`;
+                    contextMenu.style.top = `${top}px`;
+                }
+            };
+
+            panels.forEach(p => p.addEventListener('contextmenu', showMenu));
+            document.addEventListener('click', (e) => {
+                if (contextMenu.style.display === 'block' && !contextMenu.contains(e.target)) closeContextMenu();
+            });
+        }
+
+        function closeContextMenu() {
+            contextMenu.style.display = 'none';
+            selectedRange = null;
+        }
+
+        function unwrapElement(el) {
+            const parent = el.parentNode;
+            if (!parent) return;
+            while (el.firstChild) parent.insertBefore(el.firstChild, el);
+            parent.removeChild(el);
+            parent.normalize();
+        }
+
+        window.highlightText = () => {
+            if (selectedRange && !selectedRange.collapsed) {
+                const selectedContent = selectedRange.extractContents();
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                span.appendChild(selectedContent);
+                selectedRange.insertNode(span);
+            }
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.addNote = () => {
+            const note = prompt('Enter your note:');
+            if (!note || !selectedRange || selectedRange.collapsed) {
+                closeContextMenu();
+                window.getSelection().removeAllRanges();
+                return;
+            }
+            const span = document.createElement('span');
+            span.className = 'comment-highlight';
+            const tooltip = document.createElement('span');
+            tooltip.className = 'comment-tooltip';
+            tooltip.textContent = note;
+            span.appendChild(selectedRange.extractContents());
+            span.appendChild(tooltip);
+            selectedRange.insertNode(span);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearHighlight = () => {
+            const el = contextMenu.targetElementForClear;
+            if (el) unwrapElement(el);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        window.clearAllHighlights = () => {
+            document.querySelectorAll('.highlight, .comment-highlight').forEach(unwrapElement);
+            closeContextMenu();
+            window.getSelection().removeAllRanges();
+        };
+
+        // RESIZER
+        function initResize(e) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const startWidth = passagePanel.offsetWidth;
+            const doDrag = (e) => {
+                const nw = startWidth + e.clientX - startX;
+                if (nw > 200 && (document.body.clientWidth - nw - resizer.offsetWidth) > 200) {
+                    passagePanel.style.flex = `0 0 ${nw}px`;
+                }
+            };
+            const stopDrag = () => {
+                window.removeEventListener('mousemove', doDrag);
+                window.removeEventListener('mouseup', stopDrag);
+            };
+            window.addEventListener('mousemove', doDrag);
+            window.addEventListener('mouseup', stopDrag);
+        }
+
+        // GOTO WIDGET
+        document.getElementById('goto-btn').addEventListener('click', () => {
+            const val = parseInt(document.getElementById('goto-input').value);
+            if (val >= Q_START && val <= Q_END) goToQuestion(val);
+        });
+        document.getElementById('goto-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('goto-btn').click();
+        });
+
+        window.nextQuestion = nextQuestion;
+        window.previousQuestion = previousQuestion;
+        window.goToQuestion = goToQuestion;
+        window.closeResultsModal = closeResultsModal;
+
+        function initialize() {
+            buildSubQuestions();
+            startTimer();
+            updateAllIndicators();
+            updateNavArrows();
+            resizer.addEventListener('mousedown', initResize);
+            initializeContextMenu();
+            document.body.addEventListener('input', updateAllIndicators);
+            document.body.addEventListener('change', updateAllIndicators);
+            deliverButton.addEventListener('click', checkAnswers);
+            timerToggleButton.addEventListener('click', toggleTimer);
+            timerResetButton.addEventListener('click', resetTimer);
+            document.querySelectorAll('.matching-form-row').forEach(row => {
+                row.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'SELECT' || e.target.tagName === 'OPTION') return;
+                    const sel = row.querySelector('select');
+                    if (sel) {
+                        const q = parseInt(sel.id.replace('q', ''));
+                        if (currentQuestion !== q) goToQuestion(q);
+                    }
+                });
+            });
+        }
+
+        /* ====================================================================
+           Student-info gate + Google Form submission
+           ==================================================================== */
+        const GOOGLE_FORM = {
+            formId: "1FAIpQLSd7h7nJZI3IVEwOXA-0IJ7HEhBjyb1PUchQDpRqFUP_WtCFkA",
+            fields: {
+                name:    "entry.179454161",
+                class:   "entry.1067958449",
+                answers: "entry.618070379",
+                score:   "entry.95860801",
+            },
+        };
+
+        const student = { name: "", class: "" };
+
+        const gateOverlay = document.getElementById("gate-overlay");
+        const gateName    = document.getElementById("gate-name");
+        const gateClass   = document.getElementById("gate-class");
+        const gateError   = document.getElementById("gate-error");
+        const gateStart   = document.getElementById("gate-start");
+
+        function startPractice() {
+            const nameVal  = gateName.value.trim();
+            const classVal = gateClass.value.trim();
+            gateName.classList.toggle("invalid", !nameVal);
+            gateClass.classList.toggle("invalid", !classVal);
+            if (!nameVal || !classVal) {
+                gateError.textContent = "Please enter both your name and your class.";
+                (nameVal ? gateClass : gateName).focus();
+                return;
+            }
+            student.name  = nameVal;
+            student.class = classVal;
+            gateError.textContent = "";
+            gateOverlay.style.display = "none";
+
+            // Show identity badge in the header
+            const testInfo = document.querySelector(".test-info");
+            if (testInfo) {
+                const tag = document.createElement("span");
+                tag.className = "student-tag";
+                tag.innerHTML = "Student \u00b7 <b></b> \u00b7 Class \u00b7 <b></b>";
+                tag.querySelectorAll("b")[0].textContent = student.name;
+                tag.querySelectorAll("b")[1].textContent = student.class;
+                testInfo.appendChild(tag);
+            }
+
+            // Now the page is actually starting — initialize and start the timer.
+            initialize();
+        }
+
+        gateStart.addEventListener("click", startPractice);
+        [gateName, gateClass].forEach(el => {
+            el.addEventListener("keydown", e => {
+                if (e.key === "Enter") { e.preventDefault(); startPractice(); }
+            });
+            el.addEventListener("input", () => {
+                el.classList.remove("invalid");
+                gateError.textContent = "";
+            });
+        });
+        setTimeout(() => gateName.focus(), 50);
+
+        // Build a transcript: each question's number, the student's input, and ✓/✕.
+        // Correct answers are NOT included (this PS file doesn't reveal them on
+        // screen either, matching the privacy behaviour of other PS passages).
+        function collectAnswersTranscript() {
+            const lines = [];
+            for (let i = Q_START; i <= Q_END; i++) {
+                const correct = correctAnswers[String(i)];
+                const selectEl = document.querySelector(`select#q${i}`);
+                const textEl   = document.querySelector(`input[type="text"]#q${i}`);
+                const radioEl  = document.querySelector(`input[name="q${i}"]:checked`);
+                let userAnswer = "";
+                let isCorrect = false;
+                if (textEl) {
+                    userAnswer = textEl.value.trim();
+                    isCorrect  = Array.isArray(correct)
+                        ? correct.some(a => userAnswer.toLowerCase() === a.toLowerCase())
+                        : userAnswer.toLowerCase() === (correct || "").toLowerCase();
+                } else if (selectEl) {
+                    userAnswer = selectEl.value;
+                    isCorrect  = userAnswer !== "" && userAnswer === correct;
+                } else if (radioEl) {
+                    userAnswer = radioEl.value;
+                    isCorrect  = userAnswer === correct;
+                }
+                const status = !userAnswer ? "\u00b7" : (isCorrect ? "\u2713" : "\u2717");
+                lines.push("Q" + String(i).padStart(2, "0") + ". [" + status + "] " + (userAnswer || "(not answered)"));
+            }
+            return lines.join("\n");
+        }
+
+        let hasSubmitted = false;
+        function submitToGoogleForm() {
+            if (hasSubmitted) return;
+            hasSubmitted = true;
+
+            const right = parseInt(document.getElementById("results-score").textContent, 10) || 0;
+            const total = Q_END - Q_START + 1;
+            const url = "https://docs.google.com/forms/d/e/" + GOOGLE_FORM.formId + "/formResponse";
+            const payload = {
+                [GOOGLE_FORM.fields.name]:    student.name,
+                [GOOGLE_FORM.fields.class]:   student.class,
+                [GOOGLE_FORM.fields.answers]: collectAnswersTranscript(),
+                [GOOGLE_FORM.fields.score]:   right + " / " + total,
+            };
+
+            // Hidden-iframe form POST: the most reliable way to write to Google Forms
+            // from a webpage. The response loads into the invisible iframe, bypassing CORS.
+            let iframe = document.getElementById("gf-sink");
+            if (!iframe) {
+                iframe = document.createElement("iframe");
+                iframe.name = "gf-sink"; iframe.id = "gf-sink";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+            }
+            const form = document.createElement("form");
+            form.action = url; form.method = "POST"; form.target = "gf-sink";
+            form.style.display = "none";
+            Object.entries(payload).forEach(([k, v]) => {
+                const inp = document.createElement("input");
+                inp.type = "hidden"; inp.name = k; inp.value = v;
+                form.appendChild(inp);
+            });
+            document.body.appendChild(form);
+
+            let settled = false;
+            const onLoad = () => {
+                if (settled) return;
+                settled = true;
+                iframe.removeEventListener("load", onLoad);
+                setTimeout(() => form.remove(), 100);
+            };
+            iframe.addEventListener("load", onLoad);
+            form.submit();
+            setTimeout(() => {
+                if (settled) return;
+                settled = true;
+                iframe.removeEventListener("load", onLoad);
+                hasSubmitted = false; // allow retry
+                try { form.remove(); } catch (_) {}
+            }, 8000);
+        }
+
+        // Hook into the existing flow by observing #results-modal becoming visible.
+        // checkAnswers() removes the "hidden" class from #results-modal, and
+        // closeResultsModal() re-adds it. After the modal opens we wait one frame
+        // for #results-score to be populated, then send.
+        const resultsModal = document.getElementById("results-modal");
+        const resultsObserver = new MutationObserver(() => {
+            if (!resultsModal.classList.contains("hidden") && !hasSubmitted) {
+                requestAnimationFrame(() => submitToGoogleForm());
+            }
+        });
+        resultsObserver.observe(resultsModal, { attributes: true, attributeFilter: ["class"] });
+
+        // Note: initialize() is now called by startPractice() once the gate closes,
+        // not here — so the 20-minute timer doesn't start while the student is
+        // entering their name and class.
+    });
+    </script>
+</body>
+</html>
